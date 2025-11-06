@@ -34,9 +34,12 @@ export const useMovieStore =  defineStore('movieStore', {
                 .then(res =>
                 {
                     this.movie.push(res)
-                    return res.films
+                    return res
                 })
-                .catch(err => console.error(err))
+                .catch(err => {
+                    console.error(err)
+                    return []
+                })
         },
     }
 })

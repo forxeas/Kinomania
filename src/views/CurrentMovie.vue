@@ -1,9 +1,10 @@
 <script>
 import {useMovieStore} from "@/stores/MovieStore.js";
-import Movies from "@/views/Movies.vue";
+import AppButton from "@/components/AppButton.vue";
 
 export default {
   name: "CurrentMovie",
+  components: {AppButton},
   data() {
     return {
       movieStore: useMovieStore(),
@@ -11,8 +12,8 @@ export default {
     }
   },
   methods: {
-    showMovie() {
-      this.movie = this.movieStore.getMessage(this.$route.params.id)
+    backPage() {
+      this.$router.push({name: 'Home'})
     }
   },
 
@@ -39,8 +40,8 @@ export default {
 
 <template>
   <div class="container py-5">
+    <app-button class="btn btn-danger mb-4" @click="backPage">Назад</app-button>
     <div v-if="movie" class="row justify-content-center align-items-start g-4">
-      <!-- Постер -->
       <div class="col-md-4 text-center">
         <img
             :src="movie.posterUrl"
@@ -49,7 +50,6 @@ export default {
         />
       </div>
 
-      <!-- Информация -->
       <div class="col-md-8 text-light">
         <h2 class="fw-bold mb-3">
           {{ movie.nameRu }}

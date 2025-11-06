@@ -20,14 +20,16 @@ export default {
       return this.$route.query.movie || ''
     },
     filteredMovies() {
-      return this.movies?.films?.filter(film => film.posterUrlPreview && film.posterUrlPreview.length !== 67) || []
+      return this.movies
+        ?.films
+        ?.filter(film => film.posterUrlPreview && film.posterUrlPreview.length !== 67) || []
     }
   },
   watch: {
-    moveId: {
+    '$route.query.movie': {
       immediate: true,
-      handler(newId) {
-        this.findMovie(newId)
+      handler() {
+        this.findMovie()
       }
     }
   },
@@ -35,10 +37,11 @@ export default {
   methods: {
     async findMovie() {
       this.error   = false
-      this.loading = false
+      this.loading = true
 
       try {
         this.movies = await this.movieStore.setMovie(this.API_KEY, this.movieName)
+        console.log(this.movies)
       } catch {
         this.error = true
       } finally {
@@ -58,8 +61,10 @@ export default {
 <template>
   <div class="container-fluid py-5">
     <div v-if="loading">
-      <div class="spinner-border" role="status">
-        <span class="visually-hidden">Loading...</span>
+      <div class="d-flex justify-content-center">
+        <div class="spinner-border" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
       </div>
     </div>
 

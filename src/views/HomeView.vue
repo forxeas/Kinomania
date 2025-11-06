@@ -30,7 +30,7 @@ export default {
             placeholder="Ваш фильм"
             @enter="searchMovie"></app-input>
       </div>
-      <div v-show="movie.length >= 3 ">
+      <div v-show="movie.length >= 3" class="fade-in-button">
         <button class="btn btn-success mt-4" @click="searchMovie">Найти</button>
       </div>
     </div>
@@ -44,5 +44,16 @@ export default {
 
 button {
   width: 150px;
+}
+
+.fade-in-button {
+  opacity: 0;
+  animation: fadeIn 0.3s forwards;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
 }
 </style>
