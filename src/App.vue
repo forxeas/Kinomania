@@ -4,7 +4,7 @@ import '@/assets/base.css'
 </script>
 
 <template>
-<router-view class="container"></router-view>
+<router-view ></router-view>
 </template>
 
 <style scoped>

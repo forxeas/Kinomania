@@ -21,6 +21,7 @@ export default {
     <label :for="ID"><slot/></label>
 
     <input @input="$emit('update:modelValue', $event.target.value)"
+           @keydown.enter="$emit('enter')"
            :class="className" class="form-control"
            :id="ID"
            :type="type"

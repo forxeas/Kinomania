@@ -1,11 +1,12 @@
 <script>
-import appInput from "@/components/AppInput.vue";
-import router from "@/router/index.js";
+import appInput   from "@/components/AppInput.vue";
+import router     from "@/router/index.js";
+
 export default {
   components: {appInput},
   data() {
     return {
-      movie: ''
+      movie: '',
     }
   },
   methods: {
@@ -23,7 +24,11 @@ export default {
       <strong id="SiteName">Kinomania</strong>
 
       <div id="input" style="width: 500px;">
-        <app-input v-model.trim="movie" :className="'text-center'" placeholder="Ваш фильм"></app-input>
+        <app-input
+            v-model.trim="movie"
+            :className="'text-center'"
+            placeholder="Ваш фильм"
+            @enter="searchMovie"></app-input>
       </div>
       <div v-show="movie.length >= 3 ">
         <button class="btn btn-success mt-4" @click="searchMovie">Найти</button>
