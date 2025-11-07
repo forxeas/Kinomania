@@ -41,61 +41,95 @@ watch(movieName.value, (newId) => findMovie(newId), {immediate: true})
 </script>
 
 <template>
-  <div class="container-fluid py-5">
-    <div v-if="loading">
-      <div class="spinner-border" role="status">
+  <div class="container py-5">
+    <div v-if="loading" class="d-flex justify-content-center align-items-center py-5">
+      <div class="spinner-border text-danger" role="status">
         <span class="visually-hidden">Loading...</span>
       </div>
     </div>
 
-
-    <div class="row justify-content-center" v-if="movies">
+    <div v-else-if="filteredMovies?.length" class="row g-4 justify-content-center">
       <div
           v-for="film in filteredMovies"
           :key="film.filmId"
-          class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4 d-flex justify-content-center"
+          class="col-12 col-sm-6 col-md-4 col-lg-3"
           @click="searchCurrentMovie(film.filmId)"
       >
-        <div class="card movie-card bg-dark text-light shadow-lg border-0">
+        <div class="card movie-card bg-dark text-light border-0 shadow-sm h-100">
           <img
               :src="film.posterUrlPreview"
-              class="card-img"
+              class="card-img-top object-fit-cover"
               :alt="film.nameRu"
           />
-          <div class="card-body">
-            <h5 class="card-title text-truncate fw-bold">{{ film.nameRu + '|' + film.nameEn }}</h5>
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title fw-bold text-truncate mb-2">
+              {{ film.nameRu || film.nameEn }}
+            </h5>
             <p class="card-text small text-muted mb-2">
               {{ film.year }} • {{ film.genres[0]?.genre }}
             </p>
-            <p class="card-text small text-secondary">
-              {{ film.description?.slice(0, 150) + '...' }}
+            <p class="card-text small text-secondary flex-grow-1">
+              {{ film.description?.slice(0, 120) + '...' }}
             </p>
             <div class="d-flex justify-content-between align-items-center mt-3">
-              <span class="badge bg-danger mr">★ {{ film.rating }}</span>
-              <span class="small text bg-danger badge">{{ film.countries[0].country }}</span>
+              <span class="badge bg-danger">★ {{ film.rating }}</span>
+              <span class="badge bg-secondary text-uppercase">
+                {{ film.countries[0]?.country }}
+              </span>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <div v-else><h2 class="text-center">Ничего не найдено 😔</h2></div>
+
+    <div v-else class="text-center text-light mt-5">
+      <h2>Ничего не найдено 😔</h2>
+      <p class="text-secondary">Попробуйте изменить запрос</p>
+    </div>
   </div>
 </template>
 
 <style scoped>
 .movie-card {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  border-radius: 10px;
+  border-radius: 12px;
   overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
 }
-
 .movie-card:hover {
-  transform: scale(1.04);
-  box-shadow: 0 10px 25px rgba(255, 0, 0, 0.3);
+  transform: scale(1.03);
+  box-shadow: 0 10px 25px rgba(220, 53, 69, 0.3);
 }
-
-h2 {
-  letter-spacing: 1px;
-  text-transform: uppercase;
+.card-img-top {
+  height: clamp(220px, 35vh, 380px);
+  object-fit: cover;
+}
+@media (max-width: 768px) {
+  .movie-card {
+    border-radius: 10px;
+  }
+  .card-body {
+    padding: 0.75rem;
+  }
+  .card-title {
+    font-size: 1rem;
+  }
+  .card-text {
+    font-size: 0.85rem;
+  }
+  .badge {
+    font-size: 0.75rem;
+  }
+}
+@media (max-width: 480px) {
+  .card-img-top {
+    height: 240px;
+  }
+  h2 {
+    font-size: 1.25rem;
+  }
+  p.text-secondary {
+    font-size: 0.9rem;
+  }
 }
 </style>

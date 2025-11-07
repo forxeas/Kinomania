@@ -31,8 +31,9 @@ console.log(movie.value)
 <template>
   <div class="container py-5">
     <app-button class="btn btn-danger mb-4" @click="backPage">Назад</app-button>
+
     <div v-if="movie" class="row justify-content-center align-items-start g-4">
-      <div class="col-md-4 text-center">
+      <div class="col-12 col-md-4 text-center">
         <img
             :src="movie.posterUrl"
             :alt="movie.nameRu"
@@ -40,13 +41,13 @@ console.log(movie.value)
         />
       </div>
 
-      <div class="col-md-8 text-light">
-        <h2 class="fw-bold mb-3">
+      <div class="col-12 col-md-8 text-light">
+        <h2 class="fw-bold mb-3 movie-title">
           {{ movie.nameRu }}
           <span v-if="movie.nameEn" class="text-secondary small">({{ movie.nameEn }})</span>
         </h2>
 
-        <p class="text-muted mb-2">
+        <p class="text-secondary mb-2">
           {{ movie.year }} • {{ movie.genres.map(g => g.genre).join(', ') }}
         </p>
 
@@ -55,7 +56,7 @@ console.log(movie.value)
           <span class="badge bg-secondary">{{ movie.countries[0]?.country }}</span>
         </div>
 
-        <p class="lead mt-4">{{ movie.description }}</p>
+        <p class="lead text-secondary mt-4">{{ movie.description }}</p>
       </div>
     </div>
 
@@ -63,32 +64,41 @@ console.log(movie.value)
       <div class="spinner-border text-danger" role="status"></div>
       <p class="mt-3">Загружаем информацию о фильме...</p>
     </div>
-    <div id="kinobd" :data-kinopoisk="movieId" class="mt-5"></div>
+
+    <div id="kinobd" :data-kinopoisk="movieId" class="md-4 mt-5 video-player"></div>
   </div>
 </template>
 
 <style scoped>
-.container {
-  max-width: 1000px;
-}
-
 .movie-poster {
   max-height: 500px;
   object-fit: cover;
   transition: transform 0.3s ease;
 }
-
 .movie-poster:hover {
   transform: scale(1.02);
 }
 
-h2 {
+.movie-title {
   border-bottom: 2px solid #dc3545;
   padding-bottom: 10px;
 }
 
-.lead {
-  line-height: 1.6;
-  color: #ccc;
+.video-player {
+  width: 90%;
+  aspect-ratio: 16/9;
+  background: #111;
+  border-radius: 12px;
+}
+
+@media (max-width: 768px) {
+  .movie-poster { max-height: 320px; }
+  .movie-title { font-size: 1.4rem; text-align: center; }
+  .lead { font-size: 0.95rem; }
+}
+
+@media (max-width: 480px) {
+  .movie-poster { max-height: 260px; }
+  h2, .lead { text-align: center; }
 }
 </style>
