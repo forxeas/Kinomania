@@ -3,6 +3,8 @@ import { useMovieStore } from "@/stores/MovieStore.js";
 import router from "@/router/index.js";
 import {computed, inject, ref, watch} from "vue";
 import {useRoute} from "vue-router";
+import AppSpinner from "@/components/AppSpinner.vue";
+import "@/assets/movie.css"
 
 const API_KEY = inject('API_KEY')
 
@@ -22,9 +24,10 @@ const filteredMovies = computed(() =>
 const findMovie = async () =>
 {
   error.value   = false
-  loading.value = false
+  loading.value = true
 
   try {
+    movies.value = null
     movies.value = await movieStore.setMovie(API_KEY, movieName.value)
   } catch {
     error.value = true
@@ -36,17 +39,17 @@ const findMovie = async () =>
 const closeError         = () => error.value = false
 const searchCurrentMovie = (id) => router.push({name: 'CurrentMovie', params: {id: id}})
 
-watch(movieName.value, (newId) => findMovie(newId), {immediate: true})
+watch(movieName, (newId, oldValue) => {
+  if(newId !== oldValue) {
+    findMovie()
+  }
+}, {immediate: true})
 
 </script>
 
 <template>
   <div class="container py-5">
-    <div v-if="loading" class="d-flex justify-content-center align-items-center py-5">
-      <div class="spinner-border text-danger" role="status">
-        <span class="visually-hidden">Loading...</span>
-      </div>
-    </div>
+    <AppSpinner v-if="loading"/>
 
     <div v-else-if="filteredMovies?.length" class="row g-4 justify-content-center">
       <div
@@ -88,48 +91,3 @@ watch(movieName.value, (newId) => findMovie(newId), {immediate: true})
     </div>
   </div>
 </template>
-
-<style scoped>
-.movie-card {
-  border-radius: 12px;
-  overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  cursor: pointer;
-}
-.movie-card:hover {
-  transform: scale(1.03);
-  box-shadow: 0 10px 25px rgba(220, 53, 69, 0.3);
-}
-.card-img-top {
-  height: clamp(220px, 35vh, 380px);
-  object-fit: cover;
-}
-@media (max-width: 768px) {
-  .movie-card {
-    border-radius: 10px;
-  }
-  .card-body {
-    padding: 0.75rem;
-  }
-  .card-title {
-    font-size: 1rem;
-  }
-  .card-text {
-    font-size: 0.85rem;
-  }
-  .badge {
-    font-size: 0.75rem;
-  }
-}
-@media (max-width: 480px) {
-  .card-img-top {
-    height: 240px;
-  }
-  h2 {
-    font-size: 1.25rem;
-  }
-  p.text-secondary {
-    font-size: 0.9rem;
-  }
-}
-</style>

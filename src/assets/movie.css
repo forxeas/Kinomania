@@ -1,0 +1,42 @@
+.movie-card {
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+}
+.movie-card:hover {
+    transform: scale(1.03);
+    box-shadow: 0 10px 25px rgba(220, 53, 69, 0.3);
+}
+.card-img-top {
+    height: clamp(220px, 35vh, 380px);
+    object-fit: cover;
+}
+@media (max-width: 768px) {
+    .movie-card {
+        border-radius: 10px;
+    }
+    .card-body {
+        padding: 0.75rem;
+    }
+    .card-title {
+        font-size: 1rem;
+    }
+    .card-text {
+        font-size: 0.85rem;
+    }
+    .badge {
+        font-size: 0.75rem;
+    }
+}
+@media (max-width: 480px) {
+    .card-img-top {
+        height: 240px;
+    }
+    h2 {
+        font-size: 1.25rem;
+    }
+    p.text-secondary {
+        font-size: 0.9rem;
+    }
+}

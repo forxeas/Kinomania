@@ -3,7 +3,8 @@ import {defineStore} from "pinia";
 export const useMovieStore =  defineStore('movieStore', {
     state() {
         return {
-            movie: []
+            movie: [],
+            movieSimilar: []
         }
     },
     persist: true,
@@ -41,6 +42,29 @@ export const useMovieStore =  defineStore('movieStore', {
                     return []
                 })
         },
+
+        // async setSimilar(apiKey, movieId){
+        //     const localSimilar = this.movieSimilar.find(m => m.filmId === movieId)
+        //
+        //     if(localSimilar) {
+        //         return localSimilar
+        //     }
+        //
+        //     const url = `https://kinopoiskapiunofficial.tech/api/v2.2/films/${movieId}/similars`
+        //     const headers = {Accept: 'application/json', 'Content-Type': 'application/json', 'X-API-KEY': apiKey}
+        //
+        //     return await fetch(url, {headers: headers})
+        //         .then(res => res.json())
+        //         .then(res =>
+        //         {
+        //             this.movie.push(res)
+        //             return res
+        //         })
+        //         .catch(err => {
+        //             console.error(err)
+        //             return []
+        //         })
+        // }
     }
 })
 

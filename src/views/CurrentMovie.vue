@@ -1,19 +1,37 @@
 <script setup>
 import {useMovieStore} from "@/stores/MovieStore.js";
 import AppButton from "@/components/AppButton.vue";
-import {computed, nextTick, onBeforeMount, onMounted, ref} from "vue";
+import {computed, inject, nextTick, onBeforeMount, onMounted, ref} from "vue";
 import {useRoute, useRouter} from "vue-router";
+import "@/assets/currentMovie.css"
 
+const API_KEY    = inject('API_KEY')
 const movieStore = useMovieStore()
 const route      = useRoute()
 const router     = useRouter()
 
 const movie      = ref([])
+const similar    = ref([])
 const movieId    = computed(() => route.params.id)
 
 const backPage   = () => router.push({name: 'Home'})
 
-onBeforeMount(() => movie.value = movieStore.getMessage(movieId.value))
+onBeforeMount(() => {
+  movie.value = movieStore.getMessage(movieId.value)
+  if(movie.value) {
+
+    const res = fetch('https://kinopoiskapiunofficial.tech/api/v2.2/films/5273/similar', {
+      headers: {
+        Accept: 'application/json',
+        'X-API-KEY': API_KEY
+      }
+    })
+        .then(res => res.json())
+        .then(data => console.log(data))
+        .catch(err => console.error(err))
+    console.log(res)
+  }
+})
 
 onMounted(() => {
   if (movie.value) {
@@ -68,37 +86,3 @@ console.log(movie.value)
     <div id="kinobd" :data-kinopoisk="movieId" class="md-4 mt-5 video-player"></div>
   </div>
 </template>
-
-<style scoped>
-.movie-poster {
-  max-height: 500px;
-  object-fit: cover;
-  transition: transform 0.3s ease;
-}
-.movie-poster:hover {
-  transform: scale(1.02);
-}
-
-.movie-title {
-  border-bottom: 2px solid #dc3545;
-  padding-bottom: 10px;
-}
-
-.video-player {
-  width: 90%;
-  aspect-ratio: 16/9;
-  background: #111;
-  border-radius: 12px;
-}
-
-@media (max-width: 768px) {
-  .movie-poster { max-height: 320px; }
-  .movie-title { font-size: 1.4rem; text-align: center; }
-  .lead { font-size: 0.95rem; }
-}
-
-@media (max-width: 480px) {
-  .movie-poster { max-height: 260px; }
-  h2, .lead { text-align: center; }
-}
-</style>
