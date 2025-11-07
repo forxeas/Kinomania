@@ -1,70 +1,50 @@
-<script>
-import AppButton from "@/components/AppButton.vue";
+<script setup>
 import { useMovieStore } from "@/stores/MovieStore.js";
 import router from "@/router/index.js";
+import {computed, inject, ref, watch} from "vue";
+import {useRoute} from "vue-router";
 
-export default {
-  name: "CurrentMovies",
-  components: { AppButton },
-  inject: ['API_KEY'],
-  data() {
-    return {
-      movieStore: useMovieStore(),
-      movies: [],
-      error: false,
-      loading: false
-    }
-  },
-  computed: {
-    movieName() {
-      return this.$route.query.movie || ''
-    },
-    filteredMovies() {
-      return this.movies
-        ?.films
-        ?.filter(film => film.posterUrlPreview && film.posterUrlPreview.length !== 67) || []
-    }
-  },
-  watch: {
-    '$route.query.movie': {
-      immediate: true,
-      handler() {
-        this.findMovie()
-      }
-    }
-  },
+const API_KEY = inject('API_KEY')
 
-  methods: {
-    async findMovie() {
-      this.error   = false
-      this.loading = true
+const movieStore = useMovieStore()
+const route      = useRoute()
 
-      try {
-        this.movies = await this.movieStore.setMovie(this.API_KEY, this.movieName)
-        console.log(this.movies)
-      } catch {
-        this.error = true
-      } finally {
-        this.loading = false
-      }
-    },
-    closeError() {
-      this.error = false
-    },
-    searchCurrentMovie(id) {
-      router.push({name: 'CurrentMovie', params: {id: id}})
-    }
+const movies  = ref([])
+const error   = ref(false)
+const loading = ref(false)
+
+const movieName      = computed(() => route.query.movie || '')
+const filteredMovies = computed(() =>
+{
+   return movies.value?.films?.filter(film => film.posterUrlPreview && film.posterUrlPreview.length !== 67) || []
+})
+
+const findMovie = async () =>
+{
+  error.value   = false
+  loading.value = false
+
+  try {
+    movies.value = await movieStore.setMovie(API_KEY, movieName.value)
+  } catch {
+    error.value = true
+  } finally {
+    loading.value = false
   }
 }
+
+const closeError         = () => error.value = false
+const searchCurrentMovie = (id) => router.push({name: 'CurrentMovie', params: {id: id}})
+
+watch(movieName.value, (newId) => findMovie(newId), {immediate: true})
+
 </script>
 
 <template>
   <div class="container-fluid py-5">
     <div v-if="loading">
-      <div class="d-flex justify-content-center">
-        <div class="spinner-border" role="status">
-          <span class="visually-hidden">Loading...</span>
-        </div>
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
       </div>
     </div>
 
@@ -112,13 +92,6 @@ export default {
 .movie-card:hover {
   transform: scale(1.04);
   box-shadow: 0 10px 25px rgba(255, 0, 0, 0.3);
-}
-
-.card-img-top {
-  object-fit: contain;
-  width: 100%;
-  height: 350px;
-  background-color: #1E1E2F;
 }
 
 h2 {

@@ -1,41 +1,31 @@
-<script>
+<script setup>
 import {useMovieStore} from "@/stores/MovieStore.js";
 import AppButton from "@/components/AppButton.vue";
+import {computed, nextTick, onBeforeMount, onMounted, ref} from "vue";
+import {useRoute, useRouter} from "vue-router";
 
-export default {
-  name: "CurrentMovie",
-  components: {AppButton},
-  data() {
-    return {
-      movieStore: useMovieStore(),
-      movie: []
-    }
-  },
-  methods: {
-    backPage() {
-      this.$router.push({name: 'Home'})
-    }
-  },
+const movieStore = useMovieStore()
+const route      = useRoute()
+const router     = useRouter()
 
-  computed: {
-    movieId () {
-      return this.$route.params.id
-    }
-  },
-  beforeMount() {
-    this.movie = this.movieStore.getMessage(this.movieId);
-  },
-  mounted() {
-    if (this.movie) {
-      this.$nextTick(() => {
-        const script = document.createElement("script");
-        script.src = "//kinobd.net/js/player_.js";
-        script.async = true;
-        document.body.appendChild(script);
-      });
-    }
+const movie      = ref([])
+const movieId    = computed(() => route.params.id)
+
+const backPage   = () => router.push({name: 'Home'})
+
+onBeforeMount(() => movie.value = movieStore.getMessage(movieId.value))
+
+onMounted(() => {
+  if (movie.value) {
+    nextTick(() => {
+      const script = document.createElement("script");
+      script.src = "//kinobd.net/js/player_.js";
+      script.async = true;
+      document.body.appendChild(script);
+    })
   }
-}
+})
+console.log(movie.value)
 </script>
 
 <template>

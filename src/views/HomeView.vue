@@ -1,20 +1,11 @@
-<script>
+<script setup>
 import appInput   from "@/components/AppInput.vue";
-import router     from "@/router/index.js";
+import {ref} from "vue";
+import {useRouter} from "vue-router";
 
-export default {
-  components: {appInput},
-  data() {
-    return {
-      movie: '',
-    }
-  },
-  methods: {
-    searchMovie() {
-      router.push({name: 'Movies', query: {movie: this.movie}})
-    }
-  }
-}
+const movie  = ref('')
+const router = useRouter()
+const searchMovie = () => router.push({name: 'Movies', query: {movie: movie.value}})
 
 </script>
 
