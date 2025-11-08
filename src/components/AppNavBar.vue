@@ -16,7 +16,7 @@ const isMainPath = computed(() => route.path === '/')
 
 <template>
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
-    <div class="container">
+    <div class="container" v-if="!isMainPath">
       <router-link to="/" class="navbar-brand fw-bold">Kinomania</router-link>
       <button
           class="navbar-toggler"
@@ -42,7 +42,7 @@ const isMainPath = computed(() => route.path === '/')
             <router-link class="nav-link" to="/about">О проекте</router-link>
           </li>
         </ul>
-        <div v-if="!isMainPath">
+        <div>
           <form class="d-flex ms-lg-3" @submit.prevent="searchMovie">
             <input
                 class="form-control me-2"

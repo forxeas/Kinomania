@@ -5,18 +5,19 @@ import {computed, inject, nextTick, onBeforeMount, onMounted, ref, watch} from "
 import {useRoute, useRouter} from "vue-router";
 import "@/assets/currentMovie.css"
 
-const API_KEY    = inject('API_KEY')
-const movieStore = useMovieStore()
-const route      = useRoute()
-const router     = useRouter()
+const API_KEY      = inject('API_KEY')
+const movieStore   = useMovieStore()
+const route        = useRoute()
+const router       = useRouter()
 
-const movie      = ref([])
-const similar    = ref([])
-const movieId    = computed(() => route.params.id)
+const movie        = ref([])
+const similar      = ref([])
+const movieId      = computed(() => route.params.id)
+const movieName    = computed(() => route.query.movieName)
 
 const backPage   = () => router.push({name: 'Home'})
 
-watch(movieId, async (newValue, oldValue) => {
+watch(movieName, async (newValue, oldValue) => {
   if(newValue !== oldValue) {
     await movieStore.setMovie(API_KEY, newValue)
     movie.value   = await movieStore.getMovie(movieId.value)
