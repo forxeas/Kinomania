@@ -22,14 +22,12 @@ watch(movieName, async (newValue, oldValue) => {
     await movieStore.setMovie(API_KEY, newValue)
     movie.value   = await movieStore.getMovie(movieId.value)
     similar.value =  await movieStore.setSimilar(API_KEY, movieId.value)
-    console.log(movie.value)
   }
 })
 
 onBeforeMount(async () => {
   movie.value   = movieStore.getMovie(movieId.value)
   similar.value = await movieStore.setSimilar(API_KEY, movieId.value)
-  console.log(movie.value)
 })
 
 onMounted(async () => {
@@ -65,15 +63,15 @@ onMounted(async () => {
         </h2>
 
         <p class="text-secondary mb-2">
-          {{ movie.year }} • {{ movie.genres.map(g => g.genre).join(', ') }}
+          {{ movie.year }} • {{ movie?.genres?.map(g => g.genre).join(', ') }}
         </p>
 
         <div class="mb-3">
           <span class="badge bg-danger fs-6 me-2">★ {{ movie.rating }}</span>
-          <span class="badge bg-secondary">{{ movie.countries[0]?.country }}</span>
+          <span class="badge bg-secondary">{{ movie?.countries[0]?.country }}</span>
         </div>
 
-        <p class="lead text-secondary mt-4">{{ movie.description }}</p>
+        <p class="lead text-secondary mt-4">{{ movie?.description }}</p>
       </div>
     </div>
 
@@ -84,10 +82,10 @@ onMounted(async () => {
 
     <div id="kinobd" :data-kinopoisk="movieId" class="md-4 mt-5 video-player"></div>
 
-    <div v-if="similar.length" class="mt-5">
+    <div v-if="similar?.items.length" class="mt-5">
       <h3 class="fw-bold text-light">Похожие фильмы: </h3>
       <div class="row g-4">
-        <div v-for="movie in similar" :key="movie.filmId" class="col-12 col-md-3">
+        <div v-for="movie in similar?.items" :key="movie.filmId" class="col-12 col-md-3">
           <div class="card bg-dark text-light">
             <img :src="movie?.posterUrl"
                  :alt="movie?.nameRu"

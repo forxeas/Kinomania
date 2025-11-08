@@ -1,5 +1,19 @@
 import {defineStore} from "pinia";
 
+const fetchData = async (url, storage, headers) => {
+  return await fetch(url, {headers: headers})
+    .then(res => res.json())
+    .then(res =>
+    {
+      storage.push(res)
+      return res
+    })
+    .catch(err => {
+      console.error(err)
+      return []
+    })
+};
+
 export const useMovieStore =  defineStore('movieStore', {
     state() {
         return {
@@ -12,7 +26,7 @@ export const useMovieStore =  defineStore('movieStore', {
         getMovie: (state) => {
             return (id) => {
                 for (const movieGroup of state.movie) {
-                    const found = movieGroup.films.find(f => f.filmId === +id)
+                    const found = movieGroup?.films.find(f => f.filmId === +id)
                     if (found) return found
                 }
                 return null
@@ -21,8 +35,7 @@ export const useMovieStore =  defineStore('movieStore', {
     },
     actions: {
         async setMovie(apiKey, movieName) {
-            const localMovie = this.movie.find(m => m.keyword.toLowerCase() === movieName.toLowerCase())
-
+            const localMovie = this.movie.find(m => m?.keyword?.toLowerCase() === movieName.toLowerCase())
             if(localMovie) {
                 return localMovie
             }
@@ -30,17 +43,7 @@ export const useMovieStore =  defineStore('movieStore', {
             const url = `https://kinopoiskapiunofficial.tech/api/v2.1/films/search-by-keyword?keyword=${movieName}`
             const headers = {Accept: 'application/json', 'Content-Type': 'application/json', 'X-API-KEY': apiKey}
 
-            return await fetch(url, {headers: headers})
-                .then(res => res.json())
-                .then(res =>
-                {
-                    this.movie.push(res)
-                    return res
-                })
-                .catch(err => {
-                    console.error(err)
-                    return []
-                })
+            return await fetchData(url, this.movie, headers)
         },
 
         async setSimilar(apiKey, movieId){
@@ -53,17 +56,8 @@ export const useMovieStore =  defineStore('movieStore', {
             const url = `https://kinopoiskapiunofficial.tech/api/v2.2/films/${movieId}/similars`
             const headers = {Accept: 'application/json', 'Content-Type': 'application/json', 'X-API-KEY': apiKey}
 
-            return await fetch(url, {headers: headers})
-                .then(res => res.json())
-                .then(res =>
-                {
-                    this.movieSimilar.push(res.items)
-                    return res.items
-                })
-                .catch(err => {
-                    console.error(err)
-                    return []
-                })
+
+            return await fetchData(url, this.movieSimilar, headers)
         }
     }
 })

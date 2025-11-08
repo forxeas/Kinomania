@@ -15,8 +15,8 @@ const isMainPath = computed(() => route.path === '/')
 </script>
 
 <template>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
-    <div class="container" v-if="!isMainPath">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm" v-if="!isMainPath">
+    <div class="container">
       <router-link to="/" class="navbar-brand fw-bold">Kinomania</router-link>
       <button
           class="navbar-toggler"
@@ -32,7 +32,7 @@ const isMainPath = computed(() => route.path === '/')
 
       <div class="collapse navbar-collapse" id="navbarContent">
         <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-          <li class="nav-item">
+          <li class="nav-item" >
             <router-link class="nav-link" to="/">Главная</router-link>
           </li>
           <li class="nav-item">

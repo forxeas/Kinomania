@@ -29,8 +29,9 @@ const findMovie = async () =>
   try {
     movies.value = null
     movies.value = await movieStore.setMovie(API_KEY, movieName.value)
-  } catch {
+  } catch(e) {
     error.value = true
+    console.error(e)
   } finally {
     loading.value = false
   }
