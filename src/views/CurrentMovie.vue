@@ -1,7 +1,7 @@
 <script setup>
 import {useMovieStore} from "@/stores/MovieStore.js";
 import AppButton from "@/components/AppButton.vue";
-import {computed, inject, nextTick, onBeforeMount, onMounted, ref} from "vue";
+import {computed, inject, nextTick, onBeforeMount, onMounted, ref, watch} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import "@/assets/currentMovie.css"
 
@@ -16,26 +16,24 @@ const movieId    = computed(() => route.params.id)
 
 const backPage   = () => router.push({name: 'Home'})
 
-onBeforeMount(() => {
-  movie.value = movieStore.getMessage(movieId.value)
-  if(movie.value) {
-
-    const res = fetch('https://kinopoiskapiunofficial.tech/api/v2.2/films/5273/similar', {
-      headers: {
-        Accept: 'application/json',
-        'X-API-KEY': API_KEY
-      }
-    })
-        .then(res => res.json())
-        .then(data => console.log(data))
-        .catch(err => console.error(err))
-    console.log(res)
+watch(movieId, async (newValue, oldValue) => {
+  if(newValue !== oldValue) {
+    await movieStore.setMovie(API_KEY, newValue)
+    movie.value   = await movieStore.getMovie(movieId.value)
+    similar.value =  await movieStore.setSimilar(API_KEY, movieId.value)
+    console.log(movie.value)
   }
 })
 
-onMounted(() => {
+onBeforeMount(async () => {
+  movie.value   = movieStore.getMovie(movieId.value)
+  similar.value = await movieStore.setSimilar(API_KEY, movieId.value)
+  console.log(movie.value)
+})
+
+onMounted(async () => {
   if (movie.value) {
-    nextTick(() => {
+    await nextTick(() => {
       const script = document.createElement("script");
       script.src = "//kinobd.net/js/player_.js";
       script.async = true;
@@ -43,19 +41,19 @@ onMounted(() => {
     })
   }
 })
-console.log(movie.value)
 </script>
 
 <template>
   <div class="container py-5">
+
     <app-button class="btn btn-danger mb-4" @click="backPage">Назад</app-button>
 
     <div v-if="movie" class="row justify-content-center align-items-start g-4">
       <div class="col-12 col-md-4 text-center">
         <img
-            :src="movie.posterUrl"
-            :alt="movie.nameRu"
-            class="img-fluid rounded shadow movie-poster"
+          :src="movie.posterUrl"
+          :alt="movie.nameRu"
+          class="img-fluid rounded shadow movie-poster"
         />
       </div>
 
@@ -84,5 +82,38 @@ console.log(movie.value)
     </div>
 
     <div id="kinobd" :data-kinopoisk="movieId" class="md-4 mt-5 video-player"></div>
+
+    <div v-if="similar.length" class="mt-5">
+      <h3 class="fw-bold text-light">Похожие фильмы: </h3>
+      <div class="row g-4">
+        <div v-for="movie in similar" :key="movie.filmId" class="col-12 col-md-3">
+          <div class="card bg-dark text-light">
+            <img :src="movie?.posterUrl"
+                 :alt="movie?.nameRu"
+                 class="card-img-top"
+                 style="object-fit: contain; width: 100%; height: auto;" />
+            <div class="card-body">
+              <h5 class="card-title">{{ movie?.nameRu }}</h5>
+              <p class="card-text">{{ movie?.nameEn }}</p>
+              <router-link
+                :to="
+                {
+                  name: 'CurrentMovie',
+                  params: { id: movie?.filmId },
+                  query: {movieName: movie?.nameRu}
+                }"
+                class="btn btn-secondary"
+              >
+                Подробнее
+              </router-link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div v-else class=" text-center mt-3">
+      <strong>Ничего не нашлось 🥺</strong>
+    </div>
   </div>
 </template>

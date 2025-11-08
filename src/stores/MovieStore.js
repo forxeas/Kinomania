@@ -9,7 +9,7 @@ export const useMovieStore =  defineStore('movieStore', {
     },
     persist: true,
     getters: {
-        getMessage: (state) => {
+        getMovie: (state) => {
             return (id) => {
                 for (const movieGroup of state.movie) {
                     const found = movieGroup.films.find(f => f.filmId === +id)
@@ -43,28 +43,28 @@ export const useMovieStore =  defineStore('movieStore', {
                 })
         },
 
-        // async setSimilar(apiKey, movieId){
-        //     const localSimilar = this.movieSimilar.find(m => m.filmId === movieId)
-        //
-        //     if(localSimilar) {
-        //         return localSimilar
-        //     }
-        //
-        //     const url = `https://kinopoiskapiunofficial.tech/api/v2.2/films/${movieId}/similars`
-        //     const headers = {Accept: 'application/json', 'Content-Type': 'application/json', 'X-API-KEY': apiKey}
-        //
-        //     return await fetch(url, {headers: headers})
-        //         .then(res => res.json())
-        //         .then(res =>
-        //         {
-        //             this.movie.push(res)
-        //             return res
-        //         })
-        //         .catch(err => {
-        //             console.error(err)
-        //             return []
-        //         })
-        // }
+        async setSimilar(apiKey, movieId){
+            const localSimilar = this.movieSimilar.find(m => m.filmId === movieId)
+
+            if(localSimilar) {
+                return localSimilar
+            }
+
+            const url = `https://kinopoiskapiunofficial.tech/api/v2.2/films/${movieId}/similars`
+            const headers = {Accept: 'application/json', 'Content-Type': 'application/json', 'X-API-KEY': apiKey}
+
+            return await fetch(url, {headers: headers})
+                .then(res => res.json())
+                .then(res =>
+                {
+                    this.movieSimilar.push(res.items)
+                    return res.items
+                })
+                .catch(err => {
+                    console.error(err)
+                    return []
+                })
+        }
     }
 })
 
