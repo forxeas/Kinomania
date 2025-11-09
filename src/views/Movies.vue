@@ -15,13 +15,6 @@ const movies  = ref([])
 const error   = ref(false)
 const loading = ref(false)
 
-const movieName      = computed(() => route.query.movie || '')
-const filteredMovies = computed(() =>
-{
-  const films = movies.value?.films || movies?.value[0]?.items || []
-  return films?.filter(film => film.posterUrlPreview && film.posterUrlPreview.length !== 67) || []
-})
-
 const findMovie = async () =>
 {
   error.value   = false
@@ -41,8 +34,15 @@ const findMovie = async () =>
   } finally {
     loading.value = false
   }
+  console.log( movies.value)
 }
 
+const movieName      = computed(() => route.query.movie || '')
+const filteredMovies = computed(() =>
+{
+  const films = movies?.value?.films || movies?.value[0]?.items || []
+  return films?.filter(film => film.posterUrlPreview && film.posterUrlPreview.length !== 67) || []
+})
 const searchCurrentMovie = (id) => router.push({name: 'CurrentMovie', params: {id: id}})
 
 watch(movieName, (newId, oldValue) => {
@@ -50,7 +50,7 @@ watch(movieName, (newId, oldValue) => {
     findMovie()
   }
 }, {immediate: true})
-console.log(movies.value)
+
 </script>
 
 <template>
@@ -62,7 +62,7 @@ console.log(movies.value)
           v-for="film in filteredMovies"
           :key="film.filmId"
           class="col-12 col-sm-6 col-md-4 col-lg-3"
-          @click="searchCurrentMovie(film.filmId)"
+          @click="searchCurrentMovie(film.filmId || film.kinopoiskId)"
       >
         <div class="card movie-card bg-dark text-light border-0 shadow-sm h-100">
           <img

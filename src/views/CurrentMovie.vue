@@ -10,7 +10,7 @@ const movieStore   = useMovieStore()
 const route        = useRoute()
 const router       = useRouter()
 
-const movie        = ref([])
+const movie        = ref(null)
 const similar      = ref([])
 const movieId      = computed(() => route.params.id)
 const movieName    = computed(() => route.query.movieName)
@@ -27,7 +27,11 @@ watch(movieName, async (newValue, oldValue) => {
 
 onBeforeMount(async () => {
   movie.value   = movieStore.getMovie(movieId.value)
+  if(movie.value === null) {
+    movie.value = await movieStore.setMovieWithId(movieId.value, API_KEY)
+  }
   similar.value = await movieStore.setSimilar(API_KEY, movieId.value)
+
 })
 
 onMounted(async () => {
@@ -40,6 +44,7 @@ onMounted(async () => {
     })
   }
 })
+console.log(similar.value)
 </script>
 
 <template>
@@ -63,7 +68,7 @@ onMounted(async () => {
         </h2>
 
         <p class="text-secondary mb-2">
-          {{ movie.year }} • {{ movie?.genres?.map(g => g.genre).join(', ') }}
+          {{ movie.year }} • {{ movie?.genres?.length ? movie.genres.map(g => g.genre).join(', ') : 'Неизвестно' }}
         </p>
 
         <div class="mb-3">
