@@ -18,7 +18,8 @@ export const useMovieStore =  defineStore('movieStore', {
     state() {
         return {
             movie: [],
-            movieSimilar: []
+            movieSimilar: [],
+            movieCollection: []
         }
     },
     persist: true,
@@ -53,11 +54,22 @@ export const useMovieStore =  defineStore('movieStore', {
                 return localSimilar
             }
 
-            const url = `https://kinopoiskapiunofficial.tech/api/v2.2/films/${movieId}/similars`
+            const url   = `https://kinopoiskapiunofficial.tech/api/v2.2/films/${movieId}/similars`
             const headers = {Accept: 'application/json', 'Content-Type': 'application/json', 'X-API-KEY': apiKey}
 
 
             return await fetchData(url, this.movieSimilar, headers)
+        },
+
+        async setCollection(apiKey) {
+          if(this.movieCollection.length > 0) {
+              return this.movieCollection
+          }
+
+          const url  = `https://kinopoiskapiunofficial.tech/api/v2.2/films/collections`
+          const headers= {Accept: 'application/json', 'Content-Type': 'application/json', 'X-API-KEY': apiKey}
+
+          return await fetchData(url, this.movieCollection, headers)
         }
     }
 })

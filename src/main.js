@@ -4,7 +4,7 @@ import App from './App.vue'
 import router from './router/index.js'
 import piniaPluginPersistedState from 'pinia-plugin-persistedstate'
 
-const API_KEY = '2ace8266-712d-4e7e-a91e-4dc27924f71e'
+const API_KEY = '46aef643-c66a-4c28-8e22-810547b9e997'
 
 const app = createApp(App)
 

@@ -18,7 +18,8 @@ const loading = ref(false)
 const movieName      = computed(() => route.query.movie || '')
 const filteredMovies = computed(() =>
 {
-   return movies.value?.films?.filter(film => film.posterUrlPreview && film.posterUrlPreview.length !== 67) || []
+  const films = movies.value?.films || movies?.value[0]?.items || []
+  return films?.filter(film => film.posterUrlPreview && film.posterUrlPreview.length !== 67) || []
 })
 
 const findMovie = async () =>
@@ -28,6 +29,11 @@ const findMovie = async () =>
 
   try {
     movies.value = null
+    if(!route.query.movie) {
+      movies.value = await movieStore.setCollection(API_KEY)
+      console.log(movies.value)
+      return
+    }
     movies.value = await movieStore.setMovie(API_KEY, movieName.value)
   } catch(e) {
     error.value = true
@@ -37,7 +43,6 @@ const findMovie = async () =>
   }
 }
 
-const closeError         = () => error.value = false
 const searchCurrentMovie = (id) => router.push({name: 'CurrentMovie', params: {id: id}})
 
 watch(movieName, (newId, oldValue) => {
@@ -45,7 +50,7 @@ watch(movieName, (newId, oldValue) => {
     findMovie()
   }
 }, {immediate: true})
-
+console.log(movies.value)
 </script>
 
 <template>

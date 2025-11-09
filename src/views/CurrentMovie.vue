@@ -82,7 +82,7 @@ onMounted(async () => {
 
     <div id="kinobd" :data-kinopoisk="movieId" class="md-4 mt-5 video-player"></div>
 
-    <div v-if="similar?.items.length" class="mt-5">
+    <div v-if="similar?.items?.length" class="mt-5">
       <h3 class="fw-bold text-light">Похожие фильмы: </h3>
       <div class="row g-4">
         <div v-for="movie in similar?.items" :key="movie.filmId" class="col-12 col-md-3">
