@@ -1,6 +1,7 @@
 <script setup>
-import { useMovieStore } from "@/stores/MovieStore.js";
-import router from "@/router/index.js";
+import { useSearchStore } from "./../stores/SearchStore.ts";
+import { useCollectionStore } from "./../stores/CollectionStore.ts";
+import router from "@/router/index.ts";
 import {computed, inject, ref, watch} from "vue";
 import {useRoute} from "vue-router";
 import AppSpinner from "@/components/AppSpinner.vue";
@@ -8,12 +9,13 @@ import "@/assets/movie.css"
 
 const API_KEY = inject('API_KEY')
 
-const movieStore = useMovieStore()
-const route      = useRoute()
+const SearchStore     = useSearchStore()
+const CollectionStore = useCollectionStore()
+const route           = useRoute()
 
-const movies  = ref([])
-const error   = ref(false)
-const loading = ref(false)
+const movies          = ref([])
+const error           = ref(false)
+const loading         = ref(false)
 
 const findMovie = async () =>
 {
@@ -23,11 +25,11 @@ const findMovie = async () =>
   try {
     movies.value = null
     if(!route.query.movie) {
-      movies.value = await movieStore.setCollection(API_KEY)
+      movies.value = await CollectionStore.setCollection(API_KEY)
       console.log(movies.value)
       return
     }
-    movies.value = await movieStore.setMovie(API_KEY, movieName.value)
+    movies.value = await SearchStore.setMovie(API_KEY, movieName.value)
   } catch(e) {
     error.value = true
     console.error(e)
@@ -41,6 +43,7 @@ const movieName      = computed(() => route.query.movie || '')
 const filteredMovies = computed(() =>
 {
   const films = movies?.value?.films || movies?.value[0]?.items || []
+  console.log(movies.value)
   return films?.filter(film => film.posterUrlPreview && film.posterUrlPreview.length !== 67) || []
 })
 const searchCurrentMovie = (id) => router.push({name: 'CurrentMovie', params: {id: id}})

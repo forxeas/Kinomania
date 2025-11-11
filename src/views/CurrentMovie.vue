@@ -1,36 +1,39 @@
 <script setup>
-import {useMovieStore} from "@/stores/MovieStore.js";
+import {useSearchStore} from "./../stores/SearchStore.ts"
+import {useSearchIdStore} from "./../stores/SearchIdStore.ts"
+import {useSimilarStore} from "./../stores/SimilarStore.ts"
 import AppButton from "@/components/AppButton.vue";
 import {computed, inject, nextTick, onBeforeMount, onMounted, ref, watch} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import "@/assets/currentMovie.css"
 
-const API_KEY      = inject('API_KEY')
-const movieStore   = useMovieStore()
-const route        = useRoute()
-const router       = useRouter()
+const API_KEY          = inject('API_KEY')
+const SearchStore      = useSearchStore()
+const SearchIdStore    = useSearchIdStore()
+const SimilarStore     = useSimilarStore()
+const route            = useRoute()
+const router           = useRouter()
 
-const movie        = ref(null)
-const similar      = ref([])
-const movieId      = computed(() => route.params.id)
-const movieName    = computed(() => route.query.movieName)
-
-const backPage   = () => router.push({name: 'Home'})
+const movie            = ref(null)
+const similar          = ref([])
+const movieId          = computed(() => route.params.id)
+const movieName        = computed(() => route.query.movieName)
+const backPage         = () => router.push({name: 'Home'})
 
 watch(movieName, async (newValue, oldValue) => {
   if(newValue !== oldValue) {
-    await movieStore.setMovie(API_KEY, newValue)
-    movie.value   = await movieStore.getMovie(movieId.value)
-    similar.value =  await movieStore.setSimilar(API_KEY, movieId.value)
+    await SearchStore.setMovie(API_KEY, newValue)
+    movie.value   = await SearchStore.getMovie(movieId.value)
+    similar.value =  await SimilarStore.setSimilar(API_KEY, movieId.value)
   }
 })
 
 onBeforeMount(async () => {
-  movie.value   = movieStore.getMovie(movieId.value)
+  movie.value   = SearchStore.getMovie(movieId.value)
   if(movie.value === null) {
-    movie.value = await movieStore.setMovieWithId(movieId.value, API_KEY)
+    movie.value = await SearchIdStore.setMovieWithId(movieId.value, API_KEY)
   }
-  similar.value = await movieStore.setSimilar(API_KEY, movieId.value)
+  similar.value = await SimilarStore.setSimilar(API_KEY, movieId.value)
 
 })
 
