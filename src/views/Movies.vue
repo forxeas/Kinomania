@@ -42,8 +42,8 @@ const findMovie = async () =>
 const movieName      = computed(() => route.query.movie || '')
 const filteredMovies = computed(() =>
 {
-  const films = movies?.value?.films || movies?.value[0]?.items || []
-  console.log(movies.value)
+  const films = movies?.value?.films || movies?.value?.items || []
+  console.log(films)
   return films?.filter(film => film.posterUrlPreview && film.posterUrlPreview.length !== 67) || []
 })
 const searchCurrentMovie = (id) => router.push({name: 'CurrentMovie', params: {id: id}})

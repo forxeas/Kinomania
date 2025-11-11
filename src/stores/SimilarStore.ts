@@ -19,10 +19,10 @@ interface SimilarResponse{
 }
 
 export const useSimilarStore = defineStore('useSimilarStore', () => {
-    const movieSimilar = ref<SimilarResponse[]>([])
+    const similarStore = ref<SimilarResponse[]>([])
 
     const setSimilar = async (apiKey: string, movieId: string) => {
-        const localSimilar = movieSimilar
+        const localSimilar = similarStore
             .value
             .find(m => m.filmId === movieId)
 
@@ -33,8 +33,10 @@ export const useSimilarStore = defineStore('useSimilarStore', () => {
         const url   = `https://kinopoiskapiunofficial.tech/api/v2.2/films/${movieId}/similars`
         const headers = {Accept: 'application/json', 'Content-Type': 'application/json', 'X-API-KEY': apiKey}
 
-        return await fetchData<SimilarResponse>(url, movieSimilar.value, headers)
+        const res = await fetchData<SimilarResponse>(url, headers)
+        similarStore.value.push(res)
+        return res
     }
 
-    return {movieSimilar, setSimilar}
+    return {similarStore, setSimilar}
 }, {persist: true})

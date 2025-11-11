@@ -30,18 +30,19 @@ interface FilmDetails {
 }
 
 export const useCollectionStore = defineStore('useCollectionStore', () => {
-    const CollectionStore = ref<FilmDetails>([])
+    const CollectionStore = ref<FilmDetails|null>(null)
     const setCollection   = async (apiKey: string) => {
         if(CollectionStore.value) {
             return CollectionStore.value
         }
 
-        CollectionStore.value = []
         const url: string  = `https://kinopoiskapiunofficial.tech/api/v2.2/films/collections`
         const headers: Record<string, string> = {Accept: 'application/json', 'Content-Type': 'application/json', 'X-API-KEY': apiKey}
 
-        await fetchData(url, CollectionStore.value, headers)
-        return CollectionStore.value
+        const res = await fetchData(url, headers)
+        CollectionStore.value = res
+        console.log(res)
+        return res
     }
 
     return {CollectionStore, setCollection}

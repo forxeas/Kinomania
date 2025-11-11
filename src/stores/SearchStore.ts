@@ -32,27 +32,33 @@ interface SearchResponse{
 }
 
 export const useSearchStore = defineStore('useSearchStore', () => {
-    const movieSearch = ref<SearchResponse[]>([])
+    const movieKeywordStore = ref<SearchResponse[]>([])
 
     const setMovie = async (apiKey: string, movieName: string) => {
-        const localMovie = movieSearch.value.find(m => m?.keyword?.toLowerCase() === movieSearch.toLowerCase())
+        const localMovie = movieKeywordStore
+          .value
+          .find(m => m?.keyword?.toLowerCase() === movieName.toLowerCase())
         if(localMovie) {
+
             return localMovie
         }
         const url = `https://kinopoiskapiunofficial.tech/api/v2.1/films/search-by-keyword?keyword=${movieName}`
         const headers = {Accept: 'application/json', 'Content-Type': 'application/json', 'X-API-KEY': apiKey}
 
-        return await fetchData(url, movieSearch.value, headers)
+        const res = await fetchData(url, headers)
+        console.log(res)
+        movieKeywordStore.value.push(res)
+        return res
     }
 
     const getMovie = (id: string) => {
-        if (!movieSearch.value.length) return null
-        for (const chunk of movieSearch.value) {
+        if (!movieKeywordStore.value.length) return null
+        for (const chunk of movieKeywordStore.value) {
             const f = chunk?.films?.find(f => f.filmId === Number(id))
             if (f) return f
         }
         return null
     }
 
-    return {movieSearch, setMovie, getMovie}
+    return {movieKeywordStore, setMovie, getMovie}
 }, {persist: true})

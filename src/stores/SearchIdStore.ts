@@ -34,10 +34,10 @@ interface FilmDetails {
 
 
 export const useSearchIdStore = defineStore('useSearchIdStore', () => {
-    const movieWithId = ref<FilmDetails[]>([])
+    const movieIdStore = ref<FilmDetails[]>([])
 
     const setMovieWithId = async (id: string, apiKey: string) => {
-        const film = movieWithId.value.find(f => f.kinopoiskId === Number(id))
+        const film = movieIdStore.value.find(f => f.kinopoiskId === Number(id))
         if(film) {
             return film
         }
@@ -46,7 +46,9 @@ export const useSearchIdStore = defineStore('useSearchIdStore', () => {
             Record<string, string>
             = {Accept: 'application/json', 'Content-Type': 'application/json', 'X-API-KEY': apiKey}
 
-        return await fetchData(url, movieWithId.value, headers)
+        const res =  await fetchData(url, headers)
+        movieIdStore.value.push(res)
+        return res
     }
-    return {movieWithId, setMovieWithId}
+    return {movieIdStore, setMovieWithId}
 }, {persist: true})
