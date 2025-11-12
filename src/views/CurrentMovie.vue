@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import {useSearchStore} from "./../stores/SearchStore.ts"
 import {useSearchIdStore} from "./../stores/SearchIdStore.ts"
 import {useSimilarStore} from "./../stores/SimilarStore.ts"
@@ -6,32 +6,37 @@ import AppButton from "@/components/AppButton.vue";
 import {computed, inject, nextTick, onBeforeMount, onMounted, ref, watch} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import "@/assets/currentMovie.css"
+import type {SimilarResponse, SearchResponse} from "@/interface";
 
-const API_KEY          = inject('API_KEY')
+const API_KEY          = inject<string>('API_KEY')
 const SearchStore      = useSearchStore()
 const SearchIdStore    = useSearchIdStore()
 const SimilarStore     = useSimilarStore()
 const route            = useRoute()
 const router           = useRouter()
 
-const movie            = ref(null)
-const similar          = ref([])
-const movieId          = computed(() => route.params.id)
-const movieName        = computed(() => route.query.movieName)
+const movie            = ref<SearchResponse|null>(null)
+const similar          = ref<SimilarResponse|null>(null)
+const movieId          = computed<string>(() => route.params.id)
+const movieName        = computed<string>(() => route.query.movieName)
 const backPage         = () => router.push({name: 'Home'})
 
 watch(movieName, async (newValue, oldValue) => {
   if(newValue !== oldValue) {
     await SearchStore.setMovie(API_KEY, newValue)
-    movie.value   = await SearchStore.getMovie(movieId.value)
-    similar.value =  await SimilarStore.setSimilar(API_KEY, movieId.value)
+
+    movie.value   = await SearchStore.getMovie(movieId)
+    similar.value = await SimilarStore.setSimilar(API_KEY, movieId.value)
+
   }
 })
 
 onBeforeMount(async () => {
   movie.value   = SearchStore.getMovie(movieId.value)
+
   if(movie.value === null) {
-    movie.value = await SearchIdStore.setMovieWithId(movieId.value, API_KEY)
+    movie.value = await SearchIdStore.setMovieWithId(API_KEY, movieId.value)
+
   }
   similar.value = await SimilarStore.setSimilar(API_KEY, movieId.value)
 
@@ -44,10 +49,11 @@ onMounted(async () => {
       script.src = "//kinobd.net/js/player_.js";
       script.async = true;
       document.body.appendChild(script);
+
     })
   }
 })
-console.log(similar.value)
+
 </script>
 
 <template>

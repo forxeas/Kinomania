@@ -1,36 +1,10 @@
 import {defineStore} from "pinia";
 import {fetchData} from "../use/FetchData.ts";
 import {ref} from "vue"
-interface Countries {
-    country: string;
-}
-
-interface Genres {
-    genre: string;
-}
-
-interface Items {
-    kinopoiskId: number
-    nameRu: string
-    nameEn: string
-    nameOriginal: string
-    countries: Countries[]
-    genres: Genres[]
-    ratingKinopoisk: number;
-    ratingImdb?: number
-    year: string
-    posterUrl : string
-    posterUrlPreview : string
-}
-
-interface FilmDetails {
-    total: number
-    totalPages: number
-    items: Items[]
-}
+import type {CollectionResponse} from "@/interface"
 
 export const useCollectionStore = defineStore('useCollectionStore', () => {
-    const CollectionStore = ref<FilmDetails|null>(null)
+    const CollectionStore = ref<CollectionResponse|null>(null)
     const setCollection   = async (apiKey: string) => {
         if(CollectionStore.value) {
             return CollectionStore.value

@@ -1,9 +1,9 @@
-<script setup>
+<script setup lang="ts">
 import appInput   from "@/components/AppInput.vue";
 import {ref} from "vue";
 import {useRouter} from "vue-router";
 
-const movie  = ref('')
+const movie  = ref<string>('')
 const router = useRouter()
 const searchMovie = () => router.push({name: 'Movies', query: {movie: movie.value}})
 

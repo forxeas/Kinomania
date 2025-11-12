@@ -1,21 +1,23 @@
-<script setup>
+<script setup lang="ts">
 import { useSearchStore } from "./../stores/SearchStore.ts";
 import { useCollectionStore } from "./../stores/CollectionStore.ts";
 import router from "@/router/index.ts";
-import {computed, inject, ref, watch} from "vue";
+import {computed, type ComputedRef, inject, ref, watch} from "vue";
 import {useRoute} from "vue-router";
 import AppSpinner from "@/components/AppSpinner.vue";
 import "@/assets/movie.css"
+import type {Films} from "@/interface/films.js";
+import type {SearchResponse, CollectionResponse} from "@/interface"
 
-const API_KEY = inject('API_KEY')
+const API_KEY = inject<string>('API_KEY')
 
 const SearchStore     = useSearchStore()
 const CollectionStore = useCollectionStore()
 const route           = useRoute()
 
-const movies          = ref([])
-const error           = ref(false)
-const loading         = ref(false)
+const movies          = ref<SearchResponse|CollectionResponse|null>(null)
+const error           = ref<boolean>(false)
+const loading         = ref<boolean>(false)
 
 const findMovie = async () =>
 {
@@ -25,28 +27,39 @@ const findMovie = async () =>
   try {
     movies.value = null
     if(!route.query.movie) {
-      movies.value = await CollectionStore.setCollection(API_KEY)
-      console.log(movies.value)
-      return
+      return movies.value = await CollectionStore.setCollection(API_KEY)
+
     }
     movies.value = await SearchStore.setMovie(API_KEY, movieName.value)
+
   } catch(e) {
     error.value = true
     console.error(e)
+
   } finally {
     loading.value = false
+
   }
-  console.log( movies.value)
 }
 
-const movieName      = computed(() => route.query.movie || '')
-const filteredMovies = computed(() =>
+const movieName: ComputedRef<string>       = computed(() => route.query.movie || '')
+const filteredMovies: ComputedRef<Films[]> = computed(() =>
 {
-  const films = movies?.value?.films || movies?.value?.items || []
-  console.log(films)
-  return films?.filter(film => film.posterUrlPreview && film.posterUrlPreview.length !== 67) || []
+  let films: Films[] = []
+
+  if(!movies.value) return []
+
+  if('films' in movies.value) {
+    films =  movies.value.films
+
+  } else if('items' in movies.value) {
+    films =  movies.value.items
+
+  }
+
+  return films?.filter(film => film.posterUrlPreview.length !== 67)
 })
-const searchCurrentMovie = (id) => router.push({name: 'CurrentMovie', params: {id: id}})
+const searchCurrentMovie = (id: number) => router.push({name: 'CurrentMovie', params: {id: id}})
 
 watch(movieName, (newId, oldValue) => {
   if(newId !== oldValue) {

@@ -1,35 +1,7 @@
 import {fetchData} from "../use/FetchData.ts";
 import {defineStore} from "pinia";
 import {ref} from "vue";
-
-interface Countries{
-    country: string
-}
-
-interface Genres {
-    genre: string
-}
-
-interface Films {
-    filmId: number
-    nameRu: string
-    nameEn: string
-    type  : string
-    year  : string
-    description: string
-    countries : Countries[]
-    genres : Genres[]
-    rating : string
-    posterUrl : string
-    posterUrlPreview : string
-}
-
-interface SearchResponse{
-    keyword               : string
-    pagesCount            : number
-    searchFilmsCountResult: number
-    films                 : Films[]
-}
+import type {SearchResponse} from "@/interface";
 
 export const useSearchStore = defineStore('useSearchStore', () => {
     const movieKeywordStore = ref<SearchResponse[]>([])

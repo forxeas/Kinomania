@@ -1,22 +1,7 @@
 import {ref} from "vue";
 import {fetchData} from "./../use/FetchData.ts";
 import {defineStore} from "pinia";
-
-interface MovieSimilar {
-    filmId          : number
-    nameRu          : string
-    nameEn          : string
-    nameOriginal    : string
-    posterUrl       : string
-    posterUrlPreview: string
-    relationType    : string
-
-}
-
-interface SimilarResponse{
-    total: number
-    items: MovieSimilar[]
-}
+import type {SimilarResponse} from "@/interface"
 
 export const useSimilarStore = defineStore('useSimilarStore', () => {
     const similarStore = ref<SimilarResponse[]>([])
