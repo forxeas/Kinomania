@@ -5,3 +5,37 @@ body {
     background-color: #1E1E2F;
     color: #E0E0E0;
 }
+
+:root {
+    --container-padding: 1rem;
+    --max-content-width: 1200px;
+}
+
+html {
+    font-size: 16px
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px
+    }
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block
+}
+
+/* Utility to prefer cover images where needed */
+.object-fit-cover {
+    object-fit: cover;
+    object-position: center
+}
+
+/* Reduce motion on small screens for better performance */
+@media (max-width:480px) {
+    * {
+        transition: none !important
+    }
+}

@@ -1,8 +1,11 @@
 .movie-poster {
     max-height: 500px;
+    width: 100%;
     object-fit: cover;
-    transition: transform 0.3s ease;
+    transition: transform 0.18s ease;
+    display: block;
 }
+
 .movie-poster:hover {
     transform: scale(1.02);
 }
@@ -13,19 +16,104 @@
 }
 
 .video-player {
-    width: 90%;
+    width: 100%;
+    max-width: 100%;
     aspect-ratio: 16/9;
     background: #111;
     border-radius: 12px;
+    margin: 0 auto;
 }
 
-@media (max-width: 768px) {
-    .movie-poster { max-height: 320px; }
-    .movie-title { font-size: 1.4rem; text-align: center; }
-    .lead { font-size: 0.95rem; }
+/* Wrapper provides padding and an intrinsic responsive container */
+.video-wrapper {
+    width: 100%;
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 0.5rem;
+    box-sizing: border-box;
+}
+
+/* Ensure embedded player fills the container */
+.video-wrapper .video-player,
+.video-wrapper iframe,
+.video-wrapper video,
+.video-wrapper object {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Small screens: reduce padding, full-bleed look */
+@media (max-width: 600px) {
+    .video-wrapper {
+        padding: 0;
+        max-width: 100%;
+
+        /* Collapse animation: toggle `collapsed` class */
+        .video-wrapper {
+            transition: max-height 0.36s ease, padding 0.2s ease;
+            max-height: 2000px;
+            overflow: hidden;
+        }
+
+        .video-wrapper.collapsed {
+            max-height: 0;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+        }
+
+        /* Ensure player fills container */
+        .video-wrapper .video-player {
+            display: block
+        }
+
+        /* Toggle button styles */
+        .player-toggle {
+            min-width: 160px
+        }
+
+        @media (max-width:600px) {
+            .player-toggle {
+                width: 100%;
+                min-width: auto
+            }
+        }
+    }
+
+    .video-player {
+        border-radius: 6px
+    }
+}
+
+@media (max-width: 992px) {
+    .movie-poster {
+        max-height: 380px;
+    }
+
+    .movie-title {
+        font-size: 1.4rem;
+        text-align: left
+    }
+
+    .lead {
+        font-size: 0.95rem;
+    }
 }
 
 @media (max-width: 480px) {
-    .movie-poster { max-height: 260px; }
-    h2, .lead { text-align: center; }
+    .movie-poster {
+        max-height: 220px;
+    }
+
+    h2,
+    .lead {
+        text-align: center;
+    }
+
+    .movie-title {
+        font-size: 1.1rem
+    }
+
+    .video-player {
+        border-radius: 8px
+    }
 }
