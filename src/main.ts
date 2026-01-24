@@ -1,3 +1,5 @@
+import 'core-js/stable'
+import 'regenerator-runtime/runtime'
 import { createApp, type InjectionKey } from 'vue'
 import { createPinia, type Pinia } from 'pinia'
 import App from './App.vue'

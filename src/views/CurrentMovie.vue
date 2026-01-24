@@ -111,6 +111,7 @@ onMounted(async () => {
       <div
         id="kinobd"
         :data-kinopoisk="movieId"
+        data-player="TURBO"
         class="md-4 mt-2 video-player"
       ></div>
     </div>
