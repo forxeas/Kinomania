@@ -63,7 +63,6 @@ onMounted(async () => {
 
 <template>
   <div class="container py-5">
-    <app-button class="btn btn-danger mb-4" @click="backPage">Назад</app-button>
 
     <div v-if="movie" class="row justify-content-center align-items-start g-4">
       <div class="col-12 col-md-4 text-center">
@@ -76,9 +75,9 @@ onMounted(async () => {
 
       <div class="col-12 col-md-8 text-light">
         <h2 class="fw-bold mb-3 movie-title">
-          {{ movie.nameRu }}
+          {{ movie.nameEn || movie.nameRu }}
           <span v-if="movie.nameEn" class="text-secondary small"
-            >({{ movie.nameEn }})</span
+            >({{ movie.nameRu }})</span
           >
         </h2>
 
@@ -133,14 +132,14 @@ onMounted(async () => {
             />
             <div class="card-body">
               <h5 class="card-title">{{ movie?.nameRu }}</h5>
-              <p class="card-text">{{ movie?.nameEn }}</p>
+              <p class="card-text mb-2">({{ movie?.nameEn }})</p>
               <router-link
                 :to="{
                   name: 'CurrentMovie',
                   params: { id: movie?.filmId },
                   query: { movieName: movie?.nameRu },
                 }"
-                class="btn btn-secondary"
+                class="btn btn-secondary mt-2"
               >
                 Подробнее
               </router-link>

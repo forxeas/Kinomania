@@ -5,6 +5,7 @@
   cursor: pointer;
   display: flex;
   flex-direction: column;
+  flex: 1 1 auto;
 }
 
 .movie-card:hover {
@@ -20,6 +21,8 @@
   display: block;
 }
 
+/* (No additional poster wrapper here — use .card-img-top for list images) */
+
 /* When we want cover behavior */
 .card-img-top.cover,
 .object-fit-cover.card-img-top {
@@ -31,7 +34,13 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: 100%;
+  flex: 1 1 auto;
+}
+
+/* Ensure columns with cards stretch so all cards have equal height */
+.row.g-4>[class*="col-"] {
+  display: flex;
+  align-items: stretch;
 }
 
 .card-title {

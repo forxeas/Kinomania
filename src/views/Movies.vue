@@ -88,7 +88,8 @@ watch(movieName, (newId, oldValue) => {
           />
           <div class="card-body d-flex flex-column">
             <h5 class="card-title fw-bold text-truncate mb-2">
-              {{ film.nameRu || film.nameEn }}
+              {{ film.nameRu || film.nameEn  }}
+              ({{ film.nameEn }})
             </h5>
             <p class="card-text small text-muted mb-2">
               {{ film.year }} • {{ film.genres[0]?.genre }}
