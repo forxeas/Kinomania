@@ -50,9 +50,41 @@ onBeforeMount(async () => {
 onMounted(async () => {
   if (movie.value) {
     const loadScript = () => {
+      // Удаляем старый скрипт если он есть
+      const existingScript = document.querySelector('script[src*="kinobd"]');
+      if (existingScript) {
+        existingScript.remove();
+      }
+
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
       const script = document.createElement("script");
-      script.src = "//kinobd.net/js/player_.js";
+      script.src = "https://kinobd.net/js/player_.js";
       script.async = true;
+      script.crossOrigin = "anonymous";
+
+      // Таймаут для мобильных устройств
+      const timeoutId = setTimeout(() => {
+        console.warn("Таймаут загрузки плеера (мобильное устройство)");
+        if (isMobile) {
+          console.info("Плеер может работать с задержкой на мобильном");
+        }
+      }, isMobile ? 8000 : 5000);
+
+      script.onload = () => {
+        clearTimeout(timeoutId);
+        console.log("✓ Плеер успешно загружен");
+      };
+
+      script.onerror = () => {
+        clearTimeout(timeoutId);
+        console.error("✗ Ошибка загрузки плеера", {
+          url: script.src,
+          userAgent: navigator.userAgent,
+          isMobile: isMobile
+        });
+      };
+
       document.body.appendChild(script);
     };
 
