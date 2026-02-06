@@ -8,7 +8,6 @@ import {
   inject,
   nextTick,
   onBeforeMount,
-  onMounted,
   ref,
   watch,
 } from "vue";
@@ -25,9 +24,58 @@ const router = useRouter();
 
 const movie = ref<SearchResponse | null>(null);
 const similar = ref<SimilarResponse | null>(null);
+const isPlayerScriptLoading = ref(false);
 const movieId = computed<string>(() => route.params.id);
 const movieName = computed<string>(() => route.query.movieName);
 const backPage = () => router.push({ name: "Home" });
+
+const loadPlayerScript = async () => {
+  if (!movie.value || isPlayerScriptLoading.value) {
+    return;
+  }
+
+  isPlayerScriptLoading.value = true;
+  await nextTick();
+
+  const existingScript = document.querySelector('script[src*="kinobd"]');
+  if (existingScript) {
+    existingScript.remove();
+  }
+
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent,
+  );
+
+  const script = document.createElement("script");
+  script.src = "https://kinobd.net/js/player_.js";
+  script.async = true;
+  script.crossOrigin = "anonymous";
+
+  const timeoutId = setTimeout(() => {
+    console.warn("Таймаут загрузки плеера (мобильное устройство)");
+    if (isMobile) {
+      console.info("Плеер может работать с задержкой на мобильном");
+    }
+  }, isMobile ? 8000 : 5000);
+
+  script.onload = () => {
+    clearTimeout(timeoutId);
+    isPlayerScriptLoading.value = false;
+    console.log("✓ Плеер успешно загружен");
+  };
+
+  script.onerror = () => {
+    clearTimeout(timeoutId);
+    isPlayerScriptLoading.value = false;
+    console.error("✗ Ошибка загрузки плеера", {
+      url: script.src,
+      userAgent: navigator.userAgent,
+      isMobile: isMobile,
+    });
+  };
+
+  document.body.appendChild(script);
+};
 
 watch(movieName, async (newValue, oldValue) => {
   if (newValue !== oldValue) {
@@ -35,6 +83,12 @@ watch(movieName, async (newValue, oldValue) => {
 
     movie.value = await SearchStore.getMovie(movieId);
     similar.value = await SimilarStore.setSimilar(API_KEY, movieId.value);
+  }
+});
+
+watch(movie, async (newValue) => {
+  if (newValue) {
+    await loadPlayerScript();
   }
 });
 
@@ -47,50 +101,6 @@ onBeforeMount(async () => {
   similar.value = await SimilarStore.setSimilar(API_KEY, movieId.value);
 });
 
-onMounted(async () => {
-  if (movie.value) {
-    const loadScript = () => {
-      // Удаляем старый скрипт если он есть
-      const existingScript = document.querySelector('script[src*="kinobd"]');
-      if (existingScript) {
-        existingScript.remove();
-      }
-
-      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-      const script = document.createElement("script");
-      script.src = "https://kinobd.net/js/player_.js";
-      script.async = true;
-      script.crossOrigin = "anonymous";
-
-      // Таймаут для мобильных устройств
-      const timeoutId = setTimeout(() => {
-        console.warn("Таймаут загрузки плеера (мобильное устройство)");
-        if (isMobile) {
-          console.info("Плеер может работать с задержкой на мобильном");
-        }
-      }, isMobile ? 8000 : 5000);
-
-      script.onload = () => {
-        clearTimeout(timeoutId);
-        console.log("✓ Плеер успешно загружен");
-      };
-
-      script.onerror = () => {
-        clearTimeout(timeoutId);
-        console.error("✗ Ошибка загрузки плеера", {
-          url: script.src,
-          userAgent: navigator.userAgent,
-          isMobile: isMobile
-        });
-      };
-
-      document.body.appendChild(script);
-    };
-
-    await nextTick(loadScript);
-  }
-});
 </script>
 
 <template>
