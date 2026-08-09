@@ -140,3 +140,25 @@
     min-height: auto
   }
 }
+
+.similar-card-link {
+  display: flex;
+  height: 100%;
+  text-decoration: none;
+  color: inherit;
+}
+
+.similar-subtitle,
+.similar-description {
+  color: #adb5bd !important;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  white-space: normal;
+}
+
+.similar-description {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

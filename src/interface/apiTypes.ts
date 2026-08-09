@@ -15,7 +15,7 @@ export interface MovieSimilar {
     posterUrl       : string
     posterUrlPreview: string
     relationType    : string
-
+    shortDescription?: string
 }
 
 export interface SimilarResponse{
