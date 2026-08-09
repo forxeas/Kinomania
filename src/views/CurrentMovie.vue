@@ -2,6 +2,7 @@
 import { useSearchStore } from "./../stores/SearchStore.ts";
 import { useSearchIdStore } from "./../stores/SearchIdStore.ts";
 import { useSimilarStore } from "./../stores/SimilarStore.ts";
+import { useFavoritesStore } from "./../stores/FavoritesStore.ts";
 import {
   computed,
   inject,
@@ -27,6 +28,7 @@ const API_KEY = inject<string>("API_KEY");
 const SearchStore = useSearchStore();
 const SearchIdStore = useSearchIdStore();
 const SimilarStore = useSimilarStore();
+const FavoritesStore = useFavoritesStore();
 const route = useRoute();
 
 const movie = ref<SearchResponse | null>(null);
@@ -38,12 +40,70 @@ const playerError = ref(false);
 const movieId = computed(() => String(route.params.id));
 const movieRating = computed(() => (movie.value ? filmRating(movie.value) : null));
 
+const isFavorite = computed(() => {
+  if (!movie.value) return false;
+  return FavoritesStore.isFavorite(Number(movieId.value));
+});
+
+const toggleFavorite = (event: Event) => {
+  if (movie.value) {
+    FavoritesStore.toggleFavorite(movie.value);
+
+    // Create particle effect
+    const button = event.currentTarget as HTMLElement;
+    createParticles(button);
+  }
+};
+
+const createParticles = (element: HTMLElement) => {
+  const rect = element.getBoundingClientRect();
+  const centerX = rect.left + rect.width / 2;
+  const centerY = rect.top + rect.height / 2;
+
+  for (let i = 0; i < 8; i++) {
+    const particle = document.createElement('div');
+    particle.style.cssText = `
+      position: fixed;
+      width: 8px;
+      height: 8px;
+      background: #dc3545;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      left: ${centerX}px;
+      top: ${centerY}px;
+      animation: particleExplode 0.6s ease forwards;
+    `;
+
+    const angle = (i / 8) * Math.PI * 2;
+    const velocity = 50 + Math.random() * 30;
+    const tx = Math.cos(angle) * velocity;
+    const ty = Math.sin(angle) * velocity;
+
+    particle.style.setProperty('--tx', `${tx}px`);
+    particle.style.setProperty('--ty', `${ty}px`);
+
+    document.body.appendChild(particle);
+
+    setTimeout(() => particle.remove(), 600);
+  }
+};
+
+const isScriptLoaded = ref(false);
+
 const resetPlayerContainer = () => {
-  document.getElementById("kinobd")?.replaceChildren();
+  const container = document.getElementById("kinobd");
+  if (container) {
+    container.innerHTML = '';
+  }
 };
 
 const removePlayerScript = () => {
-  document.querySelector('script[src*="kinobd"]')?.remove();
+  const script = document.querySelector('script[src*="kinobd"]');
+  if (script) {
+    script.remove();
+    isScriptLoaded.value = false;
+  }
 };
 
 const loadPlayerScript = async () => {
@@ -55,14 +115,35 @@ const loadPlayerScript = async () => {
   playerError.value = false;
 
   await nextTick();
-  resetPlayerContainer();
-  removePlayerScript();
 
+  // Check if script is already loaded
+  if (isScriptLoaded.value) {
+    // Script is already loaded, just trigger reinitialization
+    const container = document.getElementById("kinobd");
+    if (container) {
+      // Update the data attribute
+      container.setAttribute('data-kinopoisk', movieId.value);
+
+      // Try to trigger player reinitialization
+      setTimeout(() => {
+        // Dispatch custom event to notify any listeners
+        const event = new CustomEvent('kinobd-movie-change', {
+          detail: { movieId: movieId.value }
+        });
+        window.dispatchEvent(event);
+      }, 100);
+    }
+    isPlayerLoading.value = false;
+    return;
+  }
+
+  // Load script for the first time
   await new Promise<void>((resolve, reject) => {
     const script = document.createElement("script");
     script.src = PLAYER_SCRIPT_URL;
     script.async = true;
     script.crossOrigin = "anonymous";
+    script.charset = "UTF-8";
 
     const timeoutId = window.setTimeout(() => {
       reject(new Error("Player script load timeout"));
@@ -70,7 +151,11 @@ const loadPlayerScript = async () => {
 
     script.onload = () => {
       clearTimeout(timeoutId);
-      resolve();
+      isScriptLoaded.value = true;
+      // Give the script time to initialize and find the container
+      setTimeout(() => {
+        resolve();
+      }, 1000);
     };
 
     script.onerror = () => {
@@ -80,8 +165,10 @@ const loadPlayerScript = async () => {
 
     document.body.appendChild(script);
   })
-    .catch(() => {
+    .catch((error) => {
+      console.error("Player loading error:", error);
       playerError.value = true;
+      isScriptLoaded.value = false;
     })
     .finally(() => {
       isPlayerLoading.value = false;
@@ -92,7 +179,9 @@ const loadPageData = async () => {
   isPageLoading.value = true;
   playerError.value = false;
   resetPlayerContainer();
-  removePlayerScript();
+
+  // Don't remove script - let it persist and just update data
+  // removePlayerScript();
 
   try {
     let loadedMovie = SearchStore.getMovie(movieId.value);
@@ -141,29 +230,44 @@ watch(movie, (newValue) => {
           </span>
         </h2>
 
-        <p class="text-secondary mb-2">
-          {{ movie.year }} •
-          {{
-            movie.genres?.length
-              ? movie.genres.map((g) => g.genre).join(", ")
-              : "Неизвестно"
-          }}
-        </p>
+        <div class="movie-meta-info mb-3">
+          <p class="text-secondary mb-2">
+            {{ movie.year }} •
+            {{
+              movie.genres?.length
+                ? movie.genres.map((g) => g.genre).join(", ")
+                : "Неизвестно"
+            }}
+          </p>
 
-        <div class="mb-3">
-          <span v-if="movieRating" class="badge bg-danger fs-6 me-2">
-            ★ {{ movieRating }}
-          </span>
-          <span class="badge bg-secondary">
-            {{ movie.countries?.[0]?.country }}
-          </span>
+          <div class="mb-3 d-flex flex-wrap gap-2 align-items-center">
+            <span v-if="movieRating" class="badge bg-danger fs-6">
+              ★ {{ movieRating }}
+            </span>
+            <span class="badge bg-secondary">
+              {{ movie.countries?.[0]?.country }}
+            </span>
+            <span v-if="movie.filmLength" class="badge bg-info text-dark">
+              {{ Math.floor(movie.filmLength / 60) }}ч {{ movie.filmLength % 60 }}м
+            </span>
+            <button
+              class="btn btn-outline-danger favorite-btn"
+              @click="toggleFavorite($event)"
+              :class="{ 'favorite-btn--active': isFavorite }"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+              </svg>
+              <span>{{ isFavorite ? 'В избранном' : 'В избранное' }}</span>
+            </button>
+          </div>
         </div>
 
-        <p class="lead text-secondary mt-4">{{ movie.description }}</p>
+        <p class="lead text-secondary mt-4 movie-description">{{ movie.description }}</p>
       </div>
     </div>
 
-    <div v-if="movie && !isPageLoading" class="video-wrapper">
+    <div v-if="movie && !isPageLoading" class="video-wrapper" :key="movieId">
       <div
         v-if="isPlayerLoading"
         class="player-loading"
@@ -192,24 +296,30 @@ watch(movie, (newValue) => {
       />
     </div>
 
-    <section v-if="similar?.items?.length && !isPageLoading" class="mt-5">
-      <h3 class="fw-bold text-light mb-4">Похожие фильмы</h3>
+    <section v-if="similar?.items?.length && !isPageLoading" class="mt-5 similar-section">
+      <h3 class="fw-bold text-light mb-4 section-title">Похожие фильмы</h3>
       <div class="row g-4 justify-content-center">
         <div
-          v-for="item in similar.items"
+          v-for="(item, index) in similar.items"
           :key="item.filmId"
-          class="col-12 col-sm-6 col-md-4 col-lg-3"
+          class="col-12 col-sm-6 col-md-4 col-lg-3 similar-card-item"
+          :style="{ animationDelay: `${index * 0.1}s` }"
         >
           <router-link
             :to="{ name: 'CurrentMovie', params: { id: item.filmId } }"
             class="similar-card-link"
           >
-            <div class="card movie-card bg-dark text-light border-0 shadow-sm h-100">
-              <img
-                :src="item.posterUrl"
-                :alt="item.nameRu"
-                class="card-img-top object-fit-cover"
-              />
+            <div class="card movie-card bg-dark text-light border-0 shadow-sm h-100 similar-card">
+              <div class="similar-poster-wrapper">
+                <img
+                  :src="item.posterUrl"
+                  :alt="item.nameRu"
+                  class="card-img-top object-fit-cover"
+                />
+                <div class="similar-overlay">
+                  <span class="similar-watch-btn">Смотреть</span>
+                </div>
+              </div>
               <div class="card-body d-flex flex-column">
                 <h5 class="card-title fw-bold text-truncate mb-2">
                   {{ primaryTitle(item) }}
@@ -223,7 +333,7 @@ watch(movie, (newValue) => {
                 >
                   {{ truncateText(item.shortDescription, 100) }}
                 </p>
-                <span class="btn btn-secondary btn-sm mt-auto align-self-start">
+                <span class="btn btn-secondary btn-sm mt-auto align-self-start similar-btn">
                   Подробнее
                 </span>
               </div>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useSearchStore } from "./../stores/SearchStore.ts";
 import { useCollectionStore } from "./../stores/CollectionStore.ts";
+import { useFavoritesStore } from "./../stores/FavoritesStore.ts";
 import router from "@/router/index.ts";
 import { computed, type ComputedRef, inject, ref, watch } from "vue";
 import { useRoute } from "vue-router";
@@ -20,6 +21,7 @@ const API_KEY = inject<string>("API_KEY");
 
 const SearchStore = useSearchStore();
 const CollectionStore = useCollectionStore();
+const FavoritesStore = useFavoritesStore();
 const route = useRoute();
 
 const movies = ref<SearchResponse | TopResponse | null>(null);
@@ -63,8 +65,55 @@ const filteredMovies: ComputedRef<Films[]> = computed(() => {
   return movies.value.films.filter((film) => Boolean(film.posterUrlPreview));
 });
 
+const isFavorite = (filmId: number) => {
+  return FavoritesStore.isFavorite(filmId);
+};
+
 const openMovie = (film: Films) =>
   router.push({ name: "CurrentMovie", params: { id: filmId(film) } });
+
+const toggleFavorite = (film: Films, event: Event) => {
+  event.stopPropagation();
+  FavoritesStore.toggleFavorite(film);
+
+  // Create particle effect
+  const button = event.currentTarget as HTMLElement;
+  createParticles(button);
+};
+
+const createParticles = (element: HTMLElement) => {
+  const rect = element.getBoundingClientRect();
+  const centerX = rect.left + rect.width / 2;
+  const centerY = rect.top + rect.height / 2;
+
+  for (let i = 0; i < 6; i++) {
+    const particle = document.createElement('div');
+    particle.style.cssText = `
+      position: fixed;
+      width: 6px;
+      height: 6px;
+      background: #dc3545;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      left: ${centerX}px;
+      top: ${centerY}px;
+      animation: particleExplode 0.5s ease forwards;
+    `;
+
+    const angle = (i / 6) * Math.PI * 2;
+    const velocity = 40 + Math.random() * 20;
+    const tx = Math.cos(angle) * velocity;
+    const ty = Math.sin(angle) * velocity;
+
+    particle.style.setProperty('--tx', `${tx}px`);
+    particle.style.setProperty('--ty', `${ty}px`);
+
+    document.body.appendChild(particle);
+
+    setTimeout(() => particle.remove(), 500);
+  }
+};
 
 watch(movieName, (newId, oldValue) => {
   if (newId !== oldValue) {
@@ -113,6 +162,16 @@ watch(movieName, (newId, oldValue) => {
                 ★ {{ filmRating(film) }}
               </span>
               <span class="movie-card__watch">Смотреть</span>
+              <button
+                class="movie-card__favorite"
+                @click="toggleFavorite(film, $event)"
+                :class="{ 'movie-card__favorite--active': isFavorite(film.filmId) }"
+                aria-label="Добавить в избранное"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+              </button>
             </div>
           </div>
 

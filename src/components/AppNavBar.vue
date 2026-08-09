@@ -1,10 +1,12 @@
 <script setup>
 import {computed, ref} from "vue";
 import {useRoute, useRouter} from "vue-router";
+import {useFavoritesStore} from "@/stores/FavoritesStore.ts";
 
 const movie  = ref('');
 const router = useRouter();
 const route  = useRoute()
+const FavoritesStore = useFavoritesStore();
 
 const searchMovie = () => {
   if (movie.value.length > 2) {
@@ -12,6 +14,7 @@ const searchMovie = () => {
   }
 }
 const isMainPath = computed(() => route.path === '/')
+const favoriteCount = computed(() => FavoritesStore.favoriteCount);
 </script>
 
 <template>
@@ -37,6 +40,18 @@ const isMainPath = computed(() => route.path === '/')
           </li>
           <li class="nav-item">
             <router-link class="nav-link" to="/movies">Фильмы</router-link>
+          </li>
+          <li class="nav-item">
+            <router-link class="nav-link position-relative" to="/favorites">
+              Избранное
+              <span
+                v-if="favoriteCount > 0"
+                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                style="font-size: 0.6rem; margin-left: 0.5rem;"
+              >
+                {{ favoriteCount }}
+              </span>
+            </router-link>
           </li>
           <li class="nav-item">
             <router-link class="nav-link" to="/about">О проекте</router-link>
