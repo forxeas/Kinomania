@@ -11,14 +11,12 @@ export const useSearchStore = defineStore('useSearchStore', () => {
           .value
           .find(m => m?.keyword?.toLowerCase() === movieName.toLowerCase())
         if(localMovie) {
-
             return localMovie
         }
         const url = `https://kinopoiskapiunofficial.tech/api/v2.1/films/search-by-keyword?keyword=${movieName}`
         const headers = {Accept: 'application/json', 'Content-Type': 'application/json', 'X-API-KEY': apiKey}
 
         const res = await fetchData(url, headers)
-        console.log(res)
         movieKeywordStore.value.push(res)
         return res
     }

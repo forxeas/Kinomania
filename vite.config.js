@@ -16,10 +16,22 @@ export default defineConfig({
   ],
   build: {
     target: 'es5',
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor': ['vue', 'vue-router', 'pinia'],
+          'bootstrap': ['bootstrap'],
+        }
+      }
+    },
+    chunkSizeWarningLimit: 1000,
   },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
     },
+  },
+  server: {
+    historyApiFallback: true,
   },
 })
