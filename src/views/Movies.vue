@@ -42,14 +42,16 @@ const findMovie = async () => {
     movies.value = null;
 
     if (!route.query.movie) {
+      console.log("Loading top movies...");
       movies.value = await CollectionStore.setCollection(API_KEY!);
+      console.log("Top movies loaded:", movies.value);
       return;
     }
 
     movies.value = await SearchStore.setMovie(API_KEY!, movieName.value);
   } catch (e) {
     error.value = true;
-    console.error(e);
+    console.error("Error in findMovie:", e);
   } finally {
     loading.value = false;
   }

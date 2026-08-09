@@ -116,11 +116,18 @@ const loadPlayerScript = async () => {
 
   await nextTick();
   resetPlayerContainer();
-  removePlayerScript();
 
-  // Small delay to ensure DOM is ready
-  await new Promise(resolve => setTimeout(resolve, 50));
+  // Check if script is already loaded
+  const existingScript = document.querySelector('script[src*="kinobd"]');
 
+  if (existingScript) {
+    // Script already exists, just wait a bit and resolve
+    await new Promise(resolve => setTimeout(resolve, 500));
+    isPlayerLoading.value = false;
+    return;
+  }
+
+  // Load script for the first time
   await new Promise<void>((resolve, reject) => {
     const script = document.createElement("script");
     script.src = PLAYER_SCRIPT_URL;
@@ -137,7 +144,7 @@ const loadPlayerScript = async () => {
       // Give the script time to initialize and find the container
       setTimeout(() => {
         resolve();
-      }, 300);
+      }, 500);
     };
 
     script.onerror = () => {
@@ -160,7 +167,6 @@ const loadPageData = async () => {
   isPageLoading.value = true;
   playerError.value = false;
   resetPlayerContainer();
-  removePlayerScript();
 
   try {
     let loadedMovie = SearchStore.getMovie(movieId.value);
@@ -175,15 +181,14 @@ const loadPageData = async () => {
   } finally {
     isPageLoading.value = false;
   }
+
+  if (movie.value) {
+    await nextTick();
+    await loadPlayerScript();
+  }
 };
 
 watch(movieId, loadPageData, { immediate: true });
-
-watch(movie, (newValue) => {
-  if (newValue) {
-    loadPlayerScript();
-  }
-});
 </script>
 
 <template>
@@ -247,7 +252,7 @@ watch(movie, (newValue) => {
       </div>
     </div>
 
-    <div v-if="movie && !isPageLoading" class="video-wrapper">
+    <div v-if="movie && !isPageLoading" class="video-wrapper" :key="movieId">
       <div
         v-if="isPlayerLoading"
         class="player-loading"
@@ -278,11 +283,11 @@ watch(movie, (newValue) => {
 
     <section v-if="staff?.items?.length && !isPageLoading" class="mt-5 staff-section">
       <h3 class="fw-bold text-light mb-4 section-title">Актеры</h3>
-      <div class="row g-4 justify-content-center">
+      <div class="row g-3 justify-content-center">
         <div
           v-for="actor in staff.items.filter(item => item.professionKey === 'ACTOR').slice(0, 10)"
           :key="actor.staffId"
-          class="col-12 col-sm-6 col-md-4 col-lg-3"
+          class="col-6 col-sm-4 col-md-3 col-lg-2"
         >
           <router-link
             :to="{ name: 'Actor', params: { id: actor.staffId } }"
@@ -300,14 +305,41 @@ watch(movie, (newValue) => {
                 </div>
               </div>
               <div class="card-body d-flex flex-column">
-                <h5 class="card-title fw-bold text-truncate mb-2">
+                <h6 class="card-title fw-bold text-truncate mb-1 actor-name">
                   {{ actor.nameRu }}
-                </h5>
-                <p v-if="actor.nameEn" class="card-text actor-subtitle mb-2">
-                  {{ actor.nameEn }}
+                </h6>
+                <p v-if="actor.nameEn" class="card-text actor-subtitle mb-0">
+                  {{ truncateText(actor.nameEn, 20) }}
                 </p>
-                <p v-if="actor.description" class="card-text actor-description flex-grow-1">
-                  {{ truncateText(actor.description, 80) }}
+              </div>
+            </div>
+          </router-link>
+        </div>
+      </div>
+    </section>
+
+    <section v-if="staff?.items?.length && !isPageLoading" class="mt-5 crew-section">
+      <h3 class="fw-bold text-light mb-4 section-title">Съемочная группа</h3>
+      <div class="row g-3">
+        <div
+          v-for="crew in staff.items.filter(item => item.professionKey !== 'ACTOR').slice(0, 8)"
+          :key="crew.staffId"
+          class="col-12 col-sm-6 col-md-4 col-lg-3"
+        >
+          <router-link
+            :to="{ name: 'Actor', params: { id: crew.staffId } }"
+            class="crew-card-link"
+          >
+            <div class="card crew-card bg-dark text-light border-0 shadow-sm h-100">
+              <div class="card-body d-flex flex-column">
+                <h6 class="card-title fw-bold text-truncate mb-1 crew-name">
+                  {{ crew.nameRu }}
+                </h6>
+                <p v-if="crew.nameEn" class="card-text crew-subtitle mb-1">
+                  {{ truncateText(crew.nameEn, 25) }}
+                </p>
+                <p class="card-text crew-role mb-0">
+                  <span class="badge bg-secondary">{{ crew.professionText }}</span>
                 </p>
               </div>
             </div>

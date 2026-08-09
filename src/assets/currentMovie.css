@@ -325,9 +325,11 @@
     0% {
         color: #fff;
     }
+
     50% {
         color: #ffcccc;
     }
+
     100% {
         color: #fff;
     }
@@ -337,24 +339,31 @@
     0% {
         transform: scale(1);
     }
+
     25% {
         transform: scale(1.2);
     }
+
     50% {
         transform: scale(0.95);
     }
+
     75% {
         transform: scale(1.1);
     }
+
     100% {
         transform: scale(1);
     }
 }
 
 @keyframes buttonPulse {
-    0%, 100% {
+
+    0%,
+    100% {
         box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
     }
+
     50% {
         box-shadow: 0 0 0 8px rgba(220, 53, 69, 0);
     }
@@ -365,9 +374,11 @@
         transform: scale(0);
         opacity: 0;
     }
+
     50% {
         transform: scale(1.2);
     }
+
     100% {
         transform: scale(1);
         opacity: 1;
@@ -379,10 +390,12 @@
         fill: transparent;
         stroke: #dc3545;
     }
+
     50% {
         fill: #ff6b6b;
         stroke: #fff;
     }
+
     100% {
         fill: #dc3545;
         stroke: #fff;
@@ -394,6 +407,7 @@
         transform: translate(0, 0) scale(1);
         opacity: 1;
     }
+
     100% {
         transform: translate(var(--tx), var(--ty)) scale(0);
         opacity: 0;
@@ -417,6 +431,7 @@
         opacity: 0;
         transform: translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -460,6 +475,7 @@
         opacity: 0;
         transform: translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -559,15 +575,15 @@
 }
 
 .actor-card {
-    border-radius: 12px;
+    border-radius: 10px;
     overflow: hidden;
     transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s ease;
     border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .actor-card:hover {
-    transform: translateY(-8px) scale(1.02);
-    box-shadow: 0 15px 35px rgba(220, 53, 69, 0.25);
+    transform: translateY(-5px) scale(1.03);
+    box-shadow: 0 10px 25px rgba(220, 53, 69, 0.25);
     border-color: rgba(220, 53, 69, 0.3);
 }
 
@@ -602,15 +618,15 @@
 }
 
 .actor-watch-btn {
-    padding: 0.5rem 1rem;
+    padding: 0.3rem 0.6rem;
     border-radius: 999px;
     background: rgba(220, 53, 69, 0.9);
     color: #fff;
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    transform: translateY(10px);
+    transform: translateY(8px);
     transition: transform 0.3s ease;
 }
 
@@ -618,7 +634,18 @@
     transform: translateY(0);
 }
 
-.actor-subtitle,
+.actor-name {
+    font-size: 0.85rem;
+    margin: 0;
+}
+
+.actor-subtitle {
+    color: #adb5bd !important;
+    font-size: 0.75rem;
+    line-height: 1.3;
+    margin: 0;
+}
+
 .actor-description {
     color: #adb5bd !important;
     font-size: 0.9rem;
@@ -631,4 +658,45 @@
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
+}
+
+/* Crew section styles */
+.crew-section {
+    animation: fadeInUp 0.6s ease 1s both;
+}
+
+.crew-card-link {
+    display: flex;
+    height: 100%;
+    text-decoration: none;
+    color: inherit;
+}
+
+.crew-card {
+    border-radius: 10px;
+    overflow: hidden;
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.crew-card:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 20px rgba(220, 53, 69, 0.2);
+    border-color: rgba(220, 53, 69, 0.3);
+}
+
+.crew-name {
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.crew-subtitle {
+    color: #adb5bd !important;
+    font-size: 0.8rem;
+    line-height: 1.3;
+    margin: 0;
+}
+
+.crew-role {
+    margin-top: auto;
 }

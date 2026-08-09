@@ -45,6 +45,12 @@ const favoriteCount = computed(() => FavoritesStore.favoriteCount);
             <router-link class="nav-link" to="/movies">Фильмы</router-link>
           </li>
           <li class="nav-item">
+            <router-link class="nav-link" to="/actors">
+              <span class="nav-link-icon">🎭</span>
+              Актеры
+            </router-link>
+          </li>
+          <li class="nav-item">
             <router-link class="nav-link position-relative" to="/favorites">
               <span class="nav-link-icon">❤️</span>
               Избранное
