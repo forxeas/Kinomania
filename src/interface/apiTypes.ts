@@ -15,7 +15,7 @@ export interface MovieSimilar {
     posterUrl       : string
     posterUrlPreview: string
     relationType    : string
-
+    shortDescription?: string
 }
 
 export interface SimilarResponse{
@@ -62,4 +62,9 @@ export interface CollectionResponse {
     total: number
     totalPages: number
     items: Items[]
+}
+
+export interface TopResponse {
+    pagesCount: number
+    films: Films[]
 }
