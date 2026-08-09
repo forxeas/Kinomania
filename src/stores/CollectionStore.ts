@@ -25,22 +25,18 @@ export const useCollectionStore = defineStore(
     const cache = ref<TopCache | null>(null);
 
     const setCollection = async (apiKey: string) => {
-      console.log("setCollection called with apiKey:", apiKey ? "provided" : "missing");
-
       const isFresh =
         cache.value &&
         Date.now() - cache.value.fetchedAt < CACHE_TTL_MS &&
         isTopResponse(cache.value.data);
 
       if (isFresh) {
-        console.log("Using fresh cache");
         return cache.value!.data;
       }
 
       try {
         const page = Math.floor(Math.random() * TOP_PAGES) + 1;
         const url = `https://kinopoiskapiunofficial.tech/api/v2.2/films/top?type=TOP_250_BEST_FILMS&page=${page}`;
-        console.log("Fetching from URL:", url);
 
         const headers: Record<string, string> = {
           Accept: "application/json",
@@ -49,22 +45,17 @@ export const useCollectionStore = defineStore(
         };
 
         const res = await fetchData<TopResponse>(url, headers);
-        console.log("API response:", res);
 
         if (!isTopResponse(res)) {
-          console.error("Invalid API response:", res);
           throw new Error("Некорректный ответ API топ-250");
         }
 
         cache.value = { data: res, fetchedAt: Date.now() };
-        console.log("Cache updated");
 
         return res;
       } catch (error) {
-        console.error("Error fetching top movies:", error);
         // If cache exists but is expired, return it anyway as fallback
         if (cache.value && isTopResponse(cache.value.data)) {
-          console.log("Using expired cache as fallback");
           return cache.value.data;
         }
         throw error;

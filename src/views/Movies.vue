@@ -42,16 +42,13 @@ const findMovie = async () => {
     movies.value = null;
 
     if (!route.query.movie) {
-      console.log("Loading top movies...");
       movies.value = await CollectionStore.setCollection(API_KEY!);
-      console.log("Top movies loaded:", movies.value);
       return;
     }
 
     movies.value = await SearchStore.setMovie(API_KEY!, movieName.value);
   } catch (e) {
     error.value = true;
-    console.error("Error in findMovie:", e);
   } finally {
     loading.value = false;
   }
@@ -158,6 +155,9 @@ watch(movieName, (newId, oldValue) => {
               class="movie-card__image"
               :alt="primaryTitle(film)"
               loading="lazy"
+              decoding="async"
+              width="300"
+              height="450"
             />
             <div class="movie-card__overlay">
               <span v-if="filmRating(film)" class="movie-card__rating">

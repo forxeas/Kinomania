@@ -204,6 +204,8 @@ watch(movieId, loadPageData, { immediate: true });
           :src="movie.posterUrl"
           :alt="movie.nameRu"
           class="img-fluid rounded shadow movie-poster"
+          loading="lazy"
+          decoding="async"
         />
       </div>
 

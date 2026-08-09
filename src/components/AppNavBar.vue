@@ -66,24 +66,22 @@ const favoriteCount = computed(() => FavoritesStore.favoriteCount);
             <router-link class="nav-link" to="/about">О проекте</router-link>
           </li>
         </ul>
-        <div>
-          <form class="search-form" @submit.prevent="searchMovie" v-if="!isMainPath">
-            <div class="search-input-wrapper">
-              <input
-                  class="search-input"
-                  type="search"
-                  placeholder="Поиск фильмов..."
-                  v-model.trim="movie"
-              />
-              <button class="search-button" type="submit">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="11" cy="11" r="8"></circle>
-                  <path d="m21 21-4.35-4.35"></path>
-                </svg>
-              </button>
-            </div>
-          </form>
-        </div>
+        <form class="search-form ms-lg-3" @submit.prevent="searchMovie" v-if="!isMainPath">
+          <div class="search-input-wrapper">
+            <input
+                class="search-input"
+                type="search"
+                placeholder="Поиск фильмов..."
+                v-model.trim="movie"
+            />
+            <button class="search-button" type="submit">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+              </svg>
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </nav>
@@ -94,10 +92,10 @@ const favoriteCount = computed(() => FavoritesStore.favoriteCount);
   position: sticky;
   top: 0;
   z-index: 1000;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, rgba(26, 26, 46, 0.95) 0%, rgba(22, 33, 62, 0.95) 50%, rgba(26, 26, 46, 0.95) 100%);
+  backdrop-filter: blur(15px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
   transition: all 0.3s ease;
 }
 
@@ -209,23 +207,26 @@ const favoriteCount = computed(() => FavoritesStore.favoriteCount);
 
 .search-form {
   margin-left: 1rem;
+  flex-shrink: 0;
 }
 
 .search-input-wrapper {
   position: relative;
   display: flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.12);
   border-radius: 25px;
   padding: 0.3rem 0.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.25);
   transition: all 0.3s ease;
+  min-width: 200px;
+  backdrop-filter: blur(10px);
 }
 
 .search-input-wrapper:focus-within {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(220, 53, 69, 0.5);
-  box-shadow: 0 0 20px rgba(220, 53, 69, 0.2);
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(220, 53, 69, 0.6);
+  box-shadow: 0 0 20px rgba(220, 53, 69, 0.3);
 }
 
 .search-input {
@@ -236,6 +237,8 @@ const favoriteCount = computed(() => FavoritesStore.favoriteCount);
   width: 200px;
   font-size: 0.9rem;
   outline: none;
+  flex: 1;
+  min-width: 0;
 }
 
 .search-input::placeholder {
@@ -243,7 +246,7 @@ const favoriteCount = computed(() => FavoritesStore.favoriteCount);
 }
 
 .search-button {
-  background: linear-gradient(135deg, #dc3545, #ff6b6b);
+  background: linear-gradient(135deg, rgba(220, 53, 69, 0.9), rgba(255, 107, 107, 0.9));
   border: none;
   color: #fff;
   width: 36px;
@@ -255,6 +258,8 @@ const favoriteCount = computed(() => FavoritesStore.favoriteCount);
   cursor: pointer;
   transition: all 0.3s ease;
   margin-left: 0.5rem;
+  flex-shrink: 0;
+  backdrop-filter: blur(5px);
 }
 
 .search-button:hover {
@@ -280,6 +285,10 @@ const favoriteCount = computed(() => FavoritesStore.favoriteCount);
   .search-input {
     width: 150px;
   }
+
+  .search-input-wrapper {
+    min-width: 150px;
+  }
 }
 
 @media (max-width: 768px) {
@@ -291,12 +300,36 @@ const favoriteCount = computed(() => FavoritesStore.favoriteCount);
     font-size: 1.5rem;
   }
 
-  .search-input {
+  .search-form {
+    margin-left: 0;
+    margin-top: 1rem;
     width: 100%;
   }
 
   .search-input-wrapper {
     width: 100%;
+    min-width: 0;
+  }
+
+  .search-input {
+    width: 100%;
+  }
+
+  .navbar-collapse {
+    padding-top: 1rem;
+  }
+
+  .navbar-nav {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .nav-item {
+    width: 100%;
+  }
+
+  .nav-link {
+    padding: 0.75rem 1rem !important;
   }
 }
 </style>

@@ -87,7 +87,9 @@ const openActor = (actorId: number) => {
   border-radius: 12px;
   overflow: hidden;
   transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s ease;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(180deg, rgba(37, 37, 56, 0.9) 0%, rgba(26, 26, 40, 0.95) 100%);
+  backdrop-filter: blur(10px);
 }
 
 .actor-card:hover {
@@ -117,9 +119,10 @@ const openActor = (actorId: number) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(180deg, rgba(30, 30, 47, 0) 40%, rgba(30, 30, 47, 0.8) 100%);
+  background: linear-gradient(180deg, rgba(30, 30, 47, 0) 40%, rgba(30, 30, 47, 0.85) 100%);
   opacity: 0;
   transition: opacity 0.3s ease;
+  backdrop-filter: blur(5px);
 }
 
 .actor-card:hover .actor-overlay {
@@ -129,7 +132,7 @@ const openActor = (actorId: number) => {
 .actor-watch-btn {
   padding: 0.5rem 1rem;
   border-radius: 999px;
-  background: rgba(220, 53, 69, 0.9);
+  background: rgba(220, 53, 69, 0.85);
   color: #fff;
   font-size: 0.8rem;
   font-weight: 600;
@@ -137,6 +140,8 @@ const openActor = (actorId: number) => {
   letter-spacing: 0.04em;
   transform: translateY(10px);
   transition: transform 0.3s ease;
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .actor-card:hover .actor-watch-btn {
