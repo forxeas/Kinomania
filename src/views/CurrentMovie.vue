@@ -322,12 +322,12 @@ watch(movie, (newValue) => {
         <div
           v-for="(item, index) in similar.items"
           :key="item.filmId"
-          class="col-12 col-sm-6 col-md-4 col-lg-3 similar-card-item"
+          class="col-12 col-sm-6 col-md-4 col-lg-3 d-flex similar-card-item"
           :style="{ animationDelay: `${index * 0.1}s` }"
         >
           <router-link
             :to="{ name: 'CurrentMovie', params: { id: item.filmId } }"
-            class="similar-card-link"
+            class="similar-card-link w-100"
           >
             <div class="card movie-card bg-dark text-light border-0 shadow-sm h-100 similar-card">
               <div class="similar-poster-wrapper">
