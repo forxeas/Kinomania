@@ -5,14 +5,16 @@ import CurrentMovie from "@/views/CurrentMovie.vue";
 import AboutView from "@/views/AboutView.vue";
 import Favorites from "@/views/Favorites.vue";
 import Actor from "@/views/Actor.vue";
+import Actors from "@/views/Actors.vue";
 
 const routes: Array<RouteRecordRaw> =
     [
       { path: '/',           component: HomeView,       name: 'Home' },
       { path: '/movies',     component: Movies,         name: 'Movies' },
       { path: '/movies/:id', component: CurrentMovie,   name: 'CurrentMovie' },
-      { path: '/favorites',  component: Favorites,      name: 'Favorites' },
+      { path: '/actors',     component: Actors,         name: 'Actors' },
       { path: '/actor/:id',  component: Actor,          name: 'Actor' },
+      { path: '/favorites',  component: Favorites,      name: 'Favorites' },
       { path: '/about',      component: AboutView,      name: 'About' },
     ]
 
