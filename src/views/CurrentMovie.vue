@@ -22,7 +22,7 @@ import {
 } from "@/utils/movieDisplay.ts";
 
 const PLAYER_SCRIPT_URL = "https://kinobd.net/js/player_.js";
-const PLAYER_LOAD_TIMEOUT_MS = 10000;
+const PLAYER_LOAD_TIMEOUT_MS = 5000;
 
 const API_KEY = inject<string>("API_KEY");
 const SearchStore = useSearchStore();
@@ -42,7 +42,7 @@ const movieRating = computed(() => (movie.value ? filmRating(movie.value) : null
 
 const isFavorite = computed(() => {
   if (!movie.value) return false;
-  return FavoritesStore.isFavorite(Number(movieId.value));
+  return FavoritesStore.isFavorite(Number(movieId.value)).value;
 });
 
 const toggleFavorite = (event: Event) => {
@@ -89,8 +89,6 @@ const createParticles = (element: HTMLElement) => {
   }
 };
 
-const isScriptLoaded = ref(false);
-
 const resetPlayerContainer = () => {
   const container = document.getElementById("kinobd");
   if (container) {
@@ -102,7 +100,6 @@ const removePlayerScript = () => {
   const script = document.querySelector('script[src*="kinobd"]');
   if (script) {
     script.remove();
-    isScriptLoaded.value = false;
   }
 };
 
@@ -115,29 +112,12 @@ const loadPlayerScript = async () => {
   playerError.value = false;
 
   await nextTick();
+  resetPlayerContainer();
+  removePlayerScript();
 
-  // Check if script is already loaded
-  if (isScriptLoaded.value) {
-    // Script is already loaded, just trigger reinitialization
-    const container = document.getElementById("kinobd");
-    if (container) {
-      // Update the data attribute
-      container.setAttribute('data-kinopoisk', movieId.value);
+  // Small delay to ensure DOM is ready
+  await new Promise(resolve => setTimeout(resolve, 50));
 
-      // Try to trigger player reinitialization
-      setTimeout(() => {
-        // Dispatch custom event to notify any listeners
-        const event = new CustomEvent('kinobd-movie-change', {
-          detail: { movieId: movieId.value }
-        });
-        window.dispatchEvent(event);
-      }, 100);
-    }
-    isPlayerLoading.value = false;
-    return;
-  }
-
-  // Load script for the first time
   await new Promise<void>((resolve, reject) => {
     const script = document.createElement("script");
     script.src = PLAYER_SCRIPT_URL;
@@ -151,11 +131,10 @@ const loadPlayerScript = async () => {
 
     script.onload = () => {
       clearTimeout(timeoutId);
-      isScriptLoaded.value = true;
       // Give the script time to initialize and find the container
       setTimeout(() => {
         resolve();
-      }, 1000);
+      }, 300);
     };
 
     script.onerror = () => {
@@ -168,7 +147,6 @@ const loadPlayerScript = async () => {
     .catch((error) => {
       console.error("Player loading error:", error);
       playerError.value = true;
-      isScriptLoaded.value = false;
     })
     .finally(() => {
       isPlayerLoading.value = false;
@@ -179,9 +157,7 @@ const loadPageData = async () => {
   isPageLoading.value = true;
   playerError.value = false;
   resetPlayerContainer();
-
-  // Don't remove script - let it persist and just update data
-  // removePlayerScript();
+  removePlayerScript();
 
   try {
     let loadedMovie = SearchStore.getMovie(movieId.value);
@@ -258,7 +234,7 @@ watch(movie, (newValue) => {
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
               </svg>
-              <span>{{ isFavorite ? 'В избранном' : 'В избранное' }}</span>
+              <span class="favorite-text">{{ isFavorite ? 'В избранном ✓' : 'В избранное' }}</span>
             </button>
           </div>
         </div>
@@ -267,7 +243,7 @@ watch(movie, (newValue) => {
       </div>
     </div>
 
-    <div v-if="movie && !isPageLoading" class="video-wrapper" :key="movieId">
+    <div v-if="movie && !isPageLoading" class="video-wrapper">
       <div
         v-if="isPlayerLoading"
         class="player-loading"

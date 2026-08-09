@@ -228,6 +228,17 @@
     overflow: hidden;
 }
 
+.favorite-btn svg {
+    fill: transparent;
+    stroke: #dc3545;
+    transition: all 0.3s ease;
+}
+
+.favorite-btn svg path {
+    fill: transparent;
+    stroke: #dc3545;
+}
+
 .favorite-btn::before {
     content: '';
     position: absolute;
@@ -258,6 +269,17 @@
     animation: heartBeat 0.6s ease, buttonPulse 2s ease-in-out infinite;
 }
 
+.favorite-btn--active svg {
+    fill: #dc3545 !important;
+    stroke: #fff !important;
+    animation: heartFill 0.4s ease;
+}
+
+.favorite-btn--active svg path {
+    fill: #dc3545 !important;
+    stroke: #fff !important;
+}
+
 .favorite-btn--active::after {
     content: '✓';
     position: absolute;
@@ -276,13 +298,39 @@
 }
 
 .favorite-btn--active svg {
-    fill: currentColor !important;
-    stroke: currentColor !important;
+    fill: #dc3545 !important;
+    stroke: #fff !important;
     animation: heartFill 0.4s ease;
+}
+
+.favorite-btn--active svg path {
+    fill: #dc3545 !important;
+    stroke: #fff !important;
 }
 
 .favorite-btn svg {
     transition: all 0.3s ease;
+}
+
+.favorite-btn .favorite-text {
+    transition: all 0.3s ease;
+}
+
+.favorite-btn--active .favorite-text {
+    font-weight: 600;
+    animation: textHighlight 0.4s ease;
+}
+
+@keyframes textHighlight {
+    0% {
+        color: #fff;
+    }
+    50% {
+        color: #ffcccc;
+    }
+    100% {
+        color: #fff;
+    }
 }
 
 @keyframes heartBeat {
@@ -328,10 +376,16 @@
 
 @keyframes heartFill {
     0% {
-        filter: grayscale(1);
+        fill: transparent;
+        stroke: #dc3545;
+    }
+    50% {
+        fill: #ff6b6b;
+        stroke: #fff;
     }
     100% {
-        filter: grayscale(0);
+        fill: #dc3545;
+        stroke: #fff;
     }
 }
 

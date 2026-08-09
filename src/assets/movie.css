@@ -185,9 +185,14 @@
 }
 
 .movie-card__favorite--active svg {
-  fill: currentColor;
-  stroke: currentColor;
+  fill: #dc3545;
+  stroke: #fff;
   animation: heartFill 0.4s ease;
+}
+
+.movie-card__favorite--active svg path {
+  fill: #dc3545;
+  stroke: #fff;
 }
 
 .movie-card__favorite svg {
@@ -223,10 +228,12 @@
 
 @keyframes heartFill {
   0% {
-    filter: grayscale(1);
+    fill: transparent;
+    stroke: #fff;
   }
   100% {
-    filter: grayscale(0);
+    fill: #dc3545;
+    stroke: #fff;
   }
 }
 
