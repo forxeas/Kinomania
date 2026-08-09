@@ -3,6 +3,7 @@ import { useSearchStore } from "./../stores/SearchStore.ts";
 import { useSearchIdStore } from "./../stores/SearchIdStore.ts";
 import { useSimilarStore } from "./../stores/SimilarStore.ts";
 import { useFavoritesStore } from "./../stores/FavoritesStore.ts";
+import { useStaffStore } from "./../stores/StaffStore.ts";
 import {
   computed,
   inject,
@@ -13,7 +14,7 @@ import {
 import { useRoute } from "vue-router";
 import "@/assets/currentMovie.css";
 import "@/assets/movie.css";
-import type { SimilarResponse, SearchResponse } from "@/interface";
+import type { SimilarResponse, SearchResponse, StaffResponse } from "@/interface";
 import {
   filmRating,
   primaryTitle,
@@ -29,10 +30,12 @@ const SearchStore = useSearchStore();
 const SearchIdStore = useSearchIdStore();
 const SimilarStore = useSimilarStore();
 const FavoritesStore = useFavoritesStore();
+const StaffStore = useStaffStore();
 const route = useRoute();
 
 const movie = ref<SearchResponse | null>(null);
 const similar = ref<SimilarResponse | null>(null);
+const staff = ref<StaffResponse | null>(null);
 const isPageLoading = ref(false);
 const isPlayerLoading = ref(false);
 const playerError = ref(false);
@@ -168,6 +171,7 @@ const loadPageData = async () => {
 
     movie.value = loadedMovie;
     similar.value = await SimilarStore.setSimilar(API_KEY, movieId.value);
+    staff.value = await StaffStore.getStaff(API_KEY, Number(movieId.value));
   } finally {
     isPageLoading.value = false;
   }
@@ -271,6 +275,46 @@ watch(movie, (newValue) => {
         class="video-player"
       />
     </div>
+
+    <section v-if="staff?.items?.length && !isPageLoading" class="mt-5 staff-section">
+      <h3 class="fw-bold text-light mb-4 section-title">Актеры</h3>
+      <div class="row g-4 justify-content-center">
+        <div
+          v-for="actor in staff.items.filter(item => item.professionKey === 'ACTOR').slice(0, 10)"
+          :key="actor.staffId"
+          class="col-12 col-sm-6 col-md-4 col-lg-3"
+        >
+          <router-link
+            :to="{ name: 'Actor', params: { id: actor.staffId } }"
+            class="actor-card-link"
+          >
+            <div class="card actor-card bg-dark text-light border-0 shadow-sm h-100">
+              <div class="actor-poster-wrapper">
+                <img
+                  :src="actor.posterUrl || 'https://via.placeholder.com/200x300?text=No+Image'"
+                  :alt="actor.nameRu"
+                  class="card-img-top object-fit-cover"
+                />
+                <div class="actor-overlay">
+                  <span class="actor-watch-btn">Фильмы</span>
+                </div>
+              </div>
+              <div class="card-body d-flex flex-column">
+                <h5 class="card-title fw-bold text-truncate mb-2">
+                  {{ actor.nameRu }}
+                </h5>
+                <p v-if="actor.nameEn" class="card-text actor-subtitle mb-2">
+                  {{ actor.nameEn }}
+                </p>
+                <p v-if="actor.description" class="card-text actor-description flex-grow-1">
+                  {{ truncateText(actor.description, 80) }}
+                </p>
+              </div>
+            </div>
+          </router-link>
+        </div>
+      </div>
+    </section>
 
     <section v-if="similar?.items?.length && !isPageLoading" class="mt-5 similar-section">
       <h3 class="fw-bold text-light mb-4 section-title">Похожие фильмы</h3>
