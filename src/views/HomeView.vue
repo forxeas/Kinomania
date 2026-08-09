@@ -44,21 +44,6 @@ const searchMovie = () => router.push({name: 'Movies', query: {movie: movie.valu
           </button>
         </div>
       </div>
-
-      <div class="features-section">
-        <div class="feature-item">
-          <div class="feature-icon">🔍</div>
-          <div class="feature-text">Быстрый поиск</div>
-        </div>
-        <div class="feature-item">
-          <div class="feature-icon">⭐</div>
-          <div class="feature-text">Топ рейтинг</div>
-        </div>
-        <div class="feature-item">
-          <div class="feature-icon">❤️</div>
-          <div class="feature-text">Избранное</div>
-        </div>
-      </div>
     </div>
   </div>
 </template>
@@ -263,47 +248,6 @@ const searchMovie = () => router.push({name: 'Movies', query: {movie: movie.valu
   transform: scale(1.2) rotate(10deg);
 }
 
-.features-section {
-  display: flex;
-  gap: 2rem;
-  margin-top: 3rem;
-  animation: fadeIn 1s ease 0.6s both;
-}
-
-.feature-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 1rem;
-  border-radius: 15px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  transition: all 0.3s ease;
-  min-width: 100px;
-}
-
-.feature-item:hover {
-  background: rgba(220, 53, 69, 0.1);
-  border-color: rgba(220, 53, 69, 0.3);
-  transform: translateY(-5px);
-}
-
-.feature-icon {
-  font-size: 2rem;
-  transition: transform 0.3s ease;
-}
-
-.feature-item:hover .feature-icon {
-  transform: scale(1.2) rotate(10deg);
-}
-
-.feature-text {
-  color: #adb5bd;
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-
 @keyframes slideDown {
   from {
     opacity: 0;
@@ -361,34 +305,11 @@ const searchMovie = () => router.push({name: 'Movies', query: {movie: movie.valu
     padding: 0.8rem 2rem;
     font-size: 1rem;
   }
-
-  .features-section {
-    gap: 1rem;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
-  .feature-item {
-    min-width: 80px;
-    padding: 0.8rem;
-  }
-
-  .feature-icon {
-    font-size: 1.5rem;
-  }
-
-  .feature-text {
-    font-size: 0.8rem;
-  }
 }
 
 @media (max-width: 480px) {
   .effect-circle {
     opacity: 0.5;
-  }
-
-  .features-section {
-    margin-top: 2rem;
   }
 }
 </style>

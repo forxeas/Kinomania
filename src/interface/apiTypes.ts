@@ -68,3 +68,26 @@ export interface TopResponse {
     pagesCount: number
     films: Films[]
 }
+
+export interface Staff {
+    staffId: number
+    nameRu: string
+    nameEn: string
+    description: string
+    posterUrl: string
+    professionText: string
+    professionKey: string
+    films?: {
+        filmId: number
+        nameRu: string
+        nameEn: string
+        description: string
+        professionKey: string
+        rating?: string
+    }[]
+}
+
+export interface StaffResponse {
+    total: number
+    items: Staff[]
+}
