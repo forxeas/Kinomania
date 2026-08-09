@@ -63,3 +63,8 @@ export interface CollectionResponse {
     totalPages: number
     items: Items[]
 }
+
+export interface TopResponse {
+    pagesCount: number
+    films: Films[]
+}

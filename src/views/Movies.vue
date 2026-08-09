@@ -7,7 +7,7 @@ import { useRoute } from "vue-router";
 import AppSpinner from "@/components/AppSpinner.vue";
 import "@/assets/movie.css";
 import type { Films } from "@/interface/films.js";
-import type { SearchResponse, CollectionResponse } from "@/interface";
+import type { SearchResponse, TopResponse } from "@/interface";
 import {
   filmId,
   filmRating,
@@ -22,9 +22,15 @@ const SearchStore = useSearchStore();
 const CollectionStore = useCollectionStore();
 const route = useRoute();
 
-const movies = ref<SearchResponse | CollectionResponse | null>(null);
+const movies = ref<SearchResponse | TopResponse | null>(null);
 const error = ref<boolean>(false);
 const loading = ref<boolean>(false);
+
+const isTopList = computed(() => !route.query.movie);
+
+const pageTitle = computed(() =>
+  isTopList.value ? "Топ-250 Кинопоиска" : `Результаты: «${movieName.value}»`,
+);
 
 const findMovie = async () => {
   error.value = false;
@@ -34,11 +40,11 @@ const findMovie = async () => {
     movies.value = null;
 
     if (!route.query.movie) {
-      movies.value = await CollectionStore.setCollection(API_KEY);
+      movies.value = await CollectionStore.setCollection(API_KEY!);
       return;
     }
 
-    movies.value = await SearchStore.setMovie(API_KEY, movieName.value);
+    movies.value = await SearchStore.setMovie(API_KEY!, movieName.value);
   } catch (e) {
     error.value = true;
     console.error(e);
@@ -50,17 +56,11 @@ const findMovie = async () => {
 const movieName: ComputedRef<string> = computed(() => route.query.movie || "");
 
 const filteredMovies: ComputedRef<Films[]> = computed(() => {
-  let films: Films[] = [];
-
-  if (!movies.value) return [];
-
-  if ("films" in movies.value) {
-    films = movies.value.films;
-  } else if ("items" in movies.value) {
-    films = movies.value.items as unknown as Films[];
+  if (!movies.value?.films?.length) {
+    return [];
   }
 
-  return films?.filter((film) => film.posterUrlPreview?.length !== 67);
+  return movies.value.films.filter((film) => Boolean(film.posterUrlPreview));
 });
 
 const openMovie = (film: Films) =>
@@ -74,59 +74,107 @@ watch(movieName, (newId, oldValue) => {
 </script>
 
 <template>
-  <div class="container py-5">
+  <div class="container py-5 movies-page">
+    <header v-if="!loading && filteredMovies.length" class="movies-page__header">
+      <h1 class="movies-page__title">{{ pageTitle }}</h1>
+      <p v-if="isTopList" class="movies-page__subtitle">
+        Лучшие фильмы по версии Кинопоиска
+      </p>
+    </header>
+
     <AppSpinner v-if="loading" />
 
-    <div v-else-if="filteredMovies?.length" class="row g-4 justify-content-center">
+    <div v-else-if="error" class="movies-page__empty">
+      <h2>Не удалось загрузить фильмы</h2>
+      <p class="text-secondary">Попробуйте обновить страницу</p>
+    </div>
+
+    <div v-else-if="filteredMovies.length" class="row g-4 justify-content-center">
       <div
         v-for="film in filteredMovies"
         :key="filmId(film)"
         class="col-12 col-sm-6 col-md-4 col-lg-3"
-        @click="openMovie(film)"
       >
-        <div class="card movie-card bg-dark text-light border-0 shadow-sm h-100">
-          <img
-            :src="film.posterUrlPreview"
-            class="card-img-top object-fit-cover"
-            :alt="primaryTitle(film)"
-          />
-          <div class="card-body d-flex flex-column">
-            <h5 class="card-title fw-bold text-truncate mb-2">
+        <article
+          class="card movie-card bg-dark text-light border-0 h-100"
+          tabindex="0"
+          @click="openMovie(film)"
+          @keyup.enter="openMovie(film)"
+        >
+          <div class="movie-card__poster">
+            <img
+              :src="film.posterUrlPreview"
+              class="movie-card__image"
+              :alt="primaryTitle(film)"
+              loading="lazy"
+            />
+            <div class="movie-card__overlay">
+              <span v-if="filmRating(film)" class="movie-card__rating">
+                ★ {{ filmRating(film) }}
+              </span>
+              <span class="movie-card__watch">Смотреть</span>
+            </div>
+          </div>
+
+          <div class="card-body movie-card__body">
+            <h2 class="card-title movie-card__title">
               {{ primaryTitle(film) }}
               <span v-if="subtitleTitle(film)" class="movie-subtitle">
                 ({{ subtitleTitle(film) }})
               </span>
-            </h5>
-            <p class="card-text small text-muted mb-2">
-              {{ film.year }} • {{ film.genres?.[0]?.genre }}
+            </h2>
+
+            <p class="movie-card__meta">
+              {{ film.year }}<span v-if="film.genres?.[0]?.genre"> • {{ film.genres[0].genre }}</span>
             </p>
+
             <p
               v-if="film.description"
-              class="card-text small text-secondary flex-grow-1"
+              class="movie-card__description"
             >
               {{ truncateText(film.description, 120) }}
             </p>
-            <div class="d-flex justify-content-between align-items-center mt-3">
-              <span v-if="filmRating(film)" class="badge bg-danger">
-                ★ {{ filmRating(film) }}
-              </span>
-              <span class="badge bg-secondary text-uppercase">
-                {{ film.countries?.[0]?.country }}
+
+            <div class="movie-card__footer">
+              <span v-if="film.countries?.[0]?.country" class="badge movie-card__country">
+                {{ film.countries[0].country }}
               </span>
             </div>
           </div>
-        </div>
+        </article>
       </div>
     </div>
 
-    <div v-else class="text-center text-light mt-5">
-      <h2>Ничего не найдено 😔</h2>
+    <div v-else class="movies-page__empty">
+      <h2>Ничего не найдено</h2>
       <p class="text-secondary">Попробуйте изменить запрос</p>
     </div>
   </div>
 </template>
 
 <style scoped>
+.movies-page__header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.movies-page__title {
+  font-size: clamp(1.5rem, 4vw, 2.25rem);
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.movies-page__subtitle {
+  color: #adb5bd;
+  margin: 0;
+}
+
+.movies-page__empty {
+  text-align: center;
+  color: #fff;
+  margin-top: 3rem;
+}
+
 .movie-subtitle {
   color: #adb5bd;
   font-weight: 400;
