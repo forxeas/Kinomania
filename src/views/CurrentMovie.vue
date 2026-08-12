@@ -117,12 +117,50 @@ const loadPlayerScript = async () => {
   await nextTick();
   resetPlayerContainer();
 
+  // Wait for container to be available
+  const waitForContainer = () => {
+    return new Promise<void>((resolve, reject) => {
+      const checkContainer = (attempts = 0) => {
+        const container = document.getElementById("kinobd");
+        if (container) {
+          resolve();
+        } else if (attempts < 10) {
+          setTimeout(() => checkContainer(attempts + 1), 100);
+        } else {
+          reject(new Error("Player container not found"));
+        }
+      };
+      checkContainer();
+    });
+  };
+
+  try {
+    await waitForContainer();
+  } catch (error) {
+    console.error("Container error:", error);
+    playerError.value = true;
+    isPlayerLoading.value = false;
+    return;
+  }
+
   // Check if script is already loaded
   const existingScript = document.querySelector('script[src*="kinobd"]');
 
   if (existingScript) {
-    // Script already exists, just wait a bit and resolve
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // Script already exists, try to reinitialize
+    console.log("Script already loaded, attempting reinitialization");
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // Try to manually trigger player initialization
+    const container = document.getElementById("kinobd");
+    if (container && (window as any).KinoBD) {
+      try {
+        (window as any).KinoBD.init();
+      } catch (e) {
+        console.error("Manual init failed:", e);
+      }
+    }
+
     isPlayerLoading.value = false;
     return;
   }
@@ -134,6 +172,7 @@ const loadPlayerScript = async () => {
     script.async = true;
     script.crossOrigin = "anonymous";
     script.charset = "UTF-8";
+    script.defer = true;
 
     const timeoutId = window.setTimeout(() => {
       reject(new Error("Player script load timeout"));
@@ -141,18 +180,31 @@ const loadPlayerScript = async () => {
 
     script.onload = () => {
       clearTimeout(timeoutId);
-      // Give the script time to initialize and find the container
+      console.log("Player script loaded successfully");
+
+      // Give the script more time to initialize and find the container
       setTimeout(() => {
-        resolve();
+        // Check if player initialized
+        const container = document.getElementById("kinobd");
+        if (container && container.children.length > 0) {
+          console.log("Player initialized successfully");
+          resolve();
+        } else {
+          console.log("Player loaded but not initialized yet, waiting...");
+          setTimeout(() => {
+            resolve();
+          }, 1000);
+        }
       }, 500);
     };
 
     script.onerror = () => {
       clearTimeout(timeoutId);
+      console.error("Player script failed to load");
       reject(new Error("Player script failed to load"));
     };
 
-    document.body.appendChild(script);
+    document.head.appendChild(script);
   })
     .catch((error) => {
       console.error("Player loading error:", error);

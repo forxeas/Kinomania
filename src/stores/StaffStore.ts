@@ -16,6 +16,11 @@ export const useStaffStore = defineStore(
     const cache = ref<Map<number, StaffCache>>(new Map());
 
     const getStaff = async (apiKey: string, filmId: number) => {
+      // Ensure cache is a Map (in case it was serialized from storage)
+      if (!(cache.value instanceof Map)) {
+        cache.value = new Map();
+      }
+
       const cached = cache.value.get(filmId);
       const isFresh =
         cached &&
@@ -43,6 +48,11 @@ export const useStaffStore = defineStore(
     };
 
     const invalidateCache = (filmId?: number) => {
+      // Ensure cache is a Map
+      if (!(cache.value instanceof Map)) {
+        cache.value = new Map();
+      }
+
       if (filmId) {
         cache.value.delete(filmId);
       } else {
