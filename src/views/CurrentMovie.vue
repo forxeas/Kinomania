@@ -39,6 +39,7 @@ const staff = ref<StaffResponse | null>(null);
 const isPageLoading = ref(false);
 const isPlayerLoading = ref(false);
 const playerError = ref(false);
+const playerLoaded = ref(false);
 
 const movieId = computed(() => String(route.params.id));
 const movieRating = computed(() => (movie.value ? filmRating(movie.value) : null));
@@ -96,6 +97,13 @@ const resetPlayerContainer = () => {
   const container = document.getElementById("kinobd");
   if (container) {
     container.innerHTML = '';
+    // Remove all kinobd scripts and recreate container
+    const scripts = document.querySelectorAll('script[src*="kinobd"]');
+    scripts.forEach(script => script.remove());
+
+    // Remove any iframes or other player elements
+    const iframes = container.querySelectorAll('iframe');
+    iframes.forEach(iframe => iframe.remove());
   }
 };
 
@@ -106,16 +114,38 @@ const removePlayerScript = () => {
   }
 };
 
-const loadPlayerScript = async () => {
+const loadPlayerScript = async (forceReload = false) => {
   if (!movie.value || isPlayerLoading.value) {
     return;
   }
 
   isPlayerLoading.value = true;
   playerError.value = false;
+  playerLoaded.value = false;
 
   await nextTick();
-  resetPlayerContainer();
+
+  // Force complete reset if reload is requested
+  if (forceReload) {
+    const container = document.getElementById("kinobd");
+    if (container) {
+      container.innerHTML = '';
+      // Remove all kinobd scripts
+      const scripts = document.querySelectorAll('script[src*="kinobd"]');
+      scripts.forEach(script => script.remove());
+
+      // Remove any iframes or other player elements
+      const iframes = container.querySelectorAll('iframe');
+      iframes.forEach(iframe => iframe.remove());
+
+      // Clear global KinoBD object if exists
+      if ((window as any).KinoBD) {
+        delete (window as any).KinoBD;
+      }
+    }
+  } else {
+    resetPlayerContainer();
+  }
 
   // Wait for container to be available
   const waitForContainer = () => {
@@ -188,10 +218,17 @@ const loadPlayerScript = async () => {
         const container = document.getElementById("kinobd");
         if (container && container.children.length > 0) {
           console.log("Player initialized successfully");
+          playerLoaded.value = true;
           resolve();
         } else {
           console.log("Player loaded but not initialized yet, waiting...");
           setTimeout(() => {
+            const finalContainer = document.getElementById("kinobd");
+            if (finalContainer && finalContainer.children.length > 0) {
+              playerLoaded.value = true;
+            } else {
+              playerError.value = true;
+            }
             resolve();
           }, 1000);
         }
@@ -321,9 +358,20 @@ watch(movieId, loadPageData, { immediate: true });
         <button
           type="button"
           class="btn btn-outline-danger btn-sm"
-          @click="loadPlayerScript"
+          @click="loadPlayerScript(true)"
         >
           Попробовать снова
+        </button>
+      </div>
+
+      <div v-else-if="!playerLoaded" class="player-error">
+        <p class="mb-0">Плеер не загрузился</p>
+        <button
+          type="button"
+          class="btn btn-outline-danger btn-sm"
+          @click="loadPlayerScript(true)"
+        >
+          Обновить плеер
         </button>
       </div>
 
